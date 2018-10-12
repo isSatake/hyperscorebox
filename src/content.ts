@@ -5,6 +5,30 @@ type Link = {
     pageTitle: string
 }
 
+const MSG = "hyperscorebox";
+// const SCRAPBOX_TITLE = location.pathname.split("/")[2];
+
+const getPageLines = async () => {
+    const res = await fetch(`https://scrapbox.io/api/pages${location.pathname}`);
+    const {lines} = await res.json();
+    return lines;
+};
+
+setTimeout(async () => {
+    console.log(MSG, "hello from hyperscorebox");
+    const lines = await getPageLines();
+    let ABCID = "L";
+    for(let line of lines){
+        if(line.text === "code:abc"){
+            ABCID += line.id;
+            break
+        }
+    }
+    const ABCEl = document.getElementById(ABCID);
+    ABCEl.setAttribute("style","background:red");
+}, 1000);
+
+
 // const SCRAPBOXURL = "https://scrapbox.io/stk-study-music-theory/";
 // const LINK_HIGHLIGHT_COLOR = "#3965ff";
 // const inputEl = document.getElementById("abcinput");
