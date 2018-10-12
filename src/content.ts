@@ -21,21 +21,21 @@ const getPageLines = async () => {
 
 const getABCElIDs = (lines: Line[]) => {
     const IDs = [];
-    for(let line of lines){
-        if(line.text === "code:abc"){
+    for (let line of lines) {
+        if (line.text === "code:abc") {
             IDs.push(`L${line.id}`);
         }
     }
     return IDs;
 };
 
-setTimeout(async () => {
-    console.log(MSG, "hello from hyperscorebox");
+console.log(MSG, "hello from hyperscorebox");
+setInterval(async () => {
     const ABCIDs = getABCElIDs(await getPageLines());
-    for(let ABCID of ABCIDs){
-        document.getElementById(ABCID).setAttribute("style","background:red");
+    for (let ABCID of ABCIDs) {
+        document.getElementById(ABCID).setAttribute("style", "background:red");
     }
-}, 1000);
+}, 500);
 
 
 // const SCRAPBOXURL = "https://scrapbox.io/stk-study-music-theory/";
