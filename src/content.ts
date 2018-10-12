@@ -5,6 +5,11 @@ type Link = {
     pageTitle: string
 }
 
+type Line = {
+    id: string,
+    text: string
+}
+
 const MSG = "hyperscorebox";
 // const SCRAPBOX_TITLE = location.pathname.split("/")[2];
 
@@ -14,18 +19,22 @@ const getPageLines = async () => {
     return lines;
 };
 
-setTimeout(async () => {
-    console.log(MSG, "hello from hyperscorebox");
-    const lines = await getPageLines();
-    let ABCID = "L";
+const getABCElIDs = (lines: Line[]) => {
+    const IDs = [];
     for(let line of lines){
         if(line.text === "code:abc"){
-            ABCID += line.id;
-            break
+            IDs.push(`L${line.id}`);
         }
     }
-    const ABCEl = document.getElementById(ABCID);
-    ABCEl.setAttribute("style","background:red");
+    return IDs;
+};
+
+setTimeout(async () => {
+    console.log(MSG, "hello from hyperscorebox");
+    const ABCIDs = getABCElIDs(await getPageLines());
+    for(let ABCID of ABCIDs){
+        document.getElementById(ABCID).setAttribute("style","background:red");
+    }
 }, 1000);
 
 
