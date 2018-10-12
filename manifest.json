@@ -1,0 +1,23 @@
+{
+  "name": "hyperscorebox",
+  "version": "0.0.0",
+  "description": "hyperscore Chrome Extension",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "*://*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://scrapbox.io/*"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "browser_action": {
+  },
+  "manifest_version": 2
+}
