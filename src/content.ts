@@ -10,6 +10,13 @@ type Line = {
     text: string
 }
 
+type ABCBlock = {
+    titleElementID: string
+    titleElement: HTMLElement
+    blockHeight: number
+    abc: string
+}
+
 const MSG = "hyperscorebox";
 // const SCRAPBOX_TITLE = location.pathname.split("/")[2];
 
@@ -19,7 +26,7 @@ const getPageLines = async () => {
     return lines;
 };
 
-const getABCElIDs = (lines: Line[]) => {
+const getABCElIDs = (lines: Line[]): string[] => {
     const IDs = [];
     for (let line of lines) {
         if (line.text === "code:abc") {
@@ -29,16 +36,49 @@ const getABCElIDs = (lines: Line[]) => {
     return IDs;
 };
 
-const divStyle = "position: absolute; top: 0; width: 100%; height: 10px; background: blue";
+const getABCBlocks = (elementIDs: string[]): ABCBlock[] => {
+    const blocks: ABCBlock[] = [];
+    for (let elementID of elementIDs) {
+        const titleElement = document.getElementById(elementID);
+        const className = titleElement.className;
+        const classList = className.split(" ");
+        const sectionNumClass = classList.find(e => e.match(/section-\d+/) !== null);
+        const blockDivs = document.getElementsByClassName(sectionNumClass);
+
+        const codeBlockDivs = [];
+        let codeBlockStr = "";
+        let codeBlockHeight = 0;
+        for (let blockDiv of blockDivs) {
+            for(let child of blockDiv.children){
+                if(child.classList.contains("code-block") === true){
+                    codeBlockDivs.push(blockDiv);
+                    codeBlockStr += `\n${blockDiv.textContent.replace(/^\t+/, "")}`;
+                    codeBlockHeight += blockDiv.clientHeight;
+                }
+            }
+        }
+
+        blocks.push({
+            titleElementID: elementID,
+            titleElement: titleElement,
+            blockHeight: codeBlockHeight,
+            abc: codeBlockStr.replace(/^\nabc\n/, "")
+        })
+    }
+    return blocks;
+};
+
+const divStyle = "position: absolute; top: 0; width: 100%; background: blue;";
 
 console.log(MSG, "hello from hyperscorebox");
 setTimeout(async () => {
     const ABCIDs = getABCElIDs(await getPageLines());
-    for (let ABCID of ABCIDs) {
+    const ABCBlocks: ABCBlock[] = getABCBlocks(ABCIDs);
+    console.log(ABCBlocks);
+    for(let ABCBlock of ABCBlocks){
         const div = document.createElement("div");
-        div.setAttribute("style", divStyle);
-        document.getElementById(ABCID).appendChild(div);//.setAttribute("style", "background:red");
-        //毎秒追加されてるw
+        div.setAttribute("style", `${divStyle}height: ${ABCBlock.blockHeight}px;`);
+        ABCBlock.titleElement.appendChild(div);
     }
 }, 1000);
 
