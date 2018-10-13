@@ -6,13 +6,15 @@ const MSG = "hyperscorebox";
 
 console.log(MSG, "hello from hyperscorebox");
 const page = new ABCPage();
-
-setInterval(async () => {
+const update = async () => {
     const ABCIDs = getABCElIDs(await getPageLines());
     if (ABCIDs.length < 1) {
         return;
     }
     const ABCBlocks: ABCBlock[] = getABCBlocks(ABCIDs);
-    console.log(MSG, "ABCBlocks", ABCBlocks);
+    console.log(MSG, "update", "ABCBlocks", ABCBlocks);
     page.update(ABCBlocks);
-}, 500);
+};
+
+setInterval(async () => await update(), 500);
+window.addEventListener("mousedown", async (e) => await update());

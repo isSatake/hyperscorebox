@@ -55,5 +55,5 @@ export const getABCBlocks = (elementIDs: string[]): ABCBlock[] => {
 
 export const generateInlineStyle = (isEditing: boolean, abcBlockHeight: number): string => {
     const top = isEditing ? -(28 + abcBlockHeight) : 0;
-    return `position: absolute; width: 100%; background: #00bcd4; z-index: 100; top: ${top}px; height: ${abcBlockHeight}px;`
+    return `position: absolute; width: 100%; background: #bee9ef; z-index: 100; top: ${top}px; height: ${abcBlockHeight}px;`
 };
