@@ -10,12 +10,19 @@ type Line = {
     text: string
 }
 
+//コードブロックの状態
 type ABCBlock = {
     titleElementID: string
     titleElement: HTMLElement
     blockHeight: number
     abc: string
     isEditing: boolean
+}
+
+//楽譜表示部の状態
+type ScoreElement = {
+    parentElementID: string
+    element: HTMLElement
 }
 
 const MSG = "hyperscorebox";
@@ -51,14 +58,14 @@ const getABCBlocks = (elementIDs: string[]): ABCBlock[] => {
         let codeBlockHeight = 0;
         let isEditing = false;
         for (let blockDiv of blockDivs) {
-            for(let child of blockDiv.children){
-                if(child.classList.contains("code-block") === true){
+            for (let child of blockDiv.children) {
+                if (child.classList.contains("code-block") === true) {
                     codeBlockDivs.push(blockDiv);
                     codeBlockStr += `\n${blockDiv.textContent.replace(/^\t+/, "")}`;
                     codeBlockHeight += blockDiv.clientHeight;
                 }
             }
-            if(blockDiv.classList.contains("cursor-line")){
+            if (blockDiv.classList.contains("cursor-line")) {
                 isEditing = true;
             }
         }
@@ -79,18 +86,59 @@ const generateInlineStyle = (isEditing: boolean, abcBlockHeight: number): string
     return `position: absolute; width: 100%; background: #00bcd4; z-index: 100; top: ${top}px; height: ${abcBlockHeight}px;`
 };
 
+class ABCPage {
+    private scoreElements: ScoreElement[] = [];
+
+    private pushScoreElement = (block: ABCBlock): void => {
+        const div = document.createElement("div");
+        div.setAttribute("id", `ABC${block.titleElementID}`);
+        div.setAttribute("style", generateInlineStyle(block.isEditing, block.blockHeight));
+        block.titleElement.appendChild(div);
+        this.scoreElements.push({
+            parentElementID: block.titleElementID,
+            element: div
+        })
+    };
+
+    private getElement = (elementID: string): ScoreElement => {
+        if (this.scoreElements.length < 1) return null;
+        for (let scoreElement of this.scoreElements) {
+            if (scoreElement.parentElementID === elementID) {
+                return scoreElement;
+            }
+        }
+        return null;
+    };
+
+    private updateElement = (block: ABCBlock): boolean => {
+        const scoreElement = this.getElement(block.titleElementID);
+        if (!scoreElement) {
+            return false;
+        }
+        scoreElement.element.setAttribute("style", generateInlineStyle(block.isEditing, block.blockHeight));
+        return true;
+    };
+
+    public update = (newAbcBlocks: ABCBlock[]): void => {
+        for (let newBlock of newAbcBlocks) {
+            if (!this.updateElement(newBlock)) {
+                this.pushScoreElement(newBlock);
+            }
+        }
+    }
+}
+
 console.log(MSG, "hello from hyperscorebox");
-setTimeout(async () => {
+const page = new ABCPage();
+setInterval(async () => {
     const ABCIDs = getABCElIDs(await getPageLines());
+    if (ABCIDs.length < 1) {
+        return;
+    }
     const ABCBlocks: ABCBlock[] = getABCBlocks(ABCIDs);
     console.log(ABCBlocks);
-    for(let ABCBlock of ABCBlocks){
-        const div = document.createElement("div");
-        div.setAttribute("id", `ABC${ABCBlock.titleElementID}`);
-        div.setAttribute("style", generateInlineStyle(ABCBlock.isEditing, ABCBlock.blockHeight));
-        ABCBlock.titleElement.appendChild(div);
-    }
-}, 5000);
+    page.update(ABCBlocks);
+}, 500);
 
 
 // const SCRAPBOXURL = "https://scrapbox.io/stk-study-music-theory/";
