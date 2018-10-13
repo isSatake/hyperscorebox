@@ -29,13 +29,18 @@ const getABCElIDs = (lines: Line[]) => {
     return IDs;
 };
 
+const divStyle = "position: absolute; top: 0; width: 100%; height: 10px; background: blue";
+
 console.log(MSG, "hello from hyperscorebox");
-setInterval(async () => {
+setTimeout(async () => {
     const ABCIDs = getABCElIDs(await getPageLines());
     for (let ABCID of ABCIDs) {
-        document.getElementById(ABCID).setAttribute("style", "background:red");
+        const div = document.createElement("div");
+        div.setAttribute("style", divStyle);
+        document.getElementById(ABCID).appendChild(div);//.setAttribute("style", "background:red");
+        //毎秒追加されてるw
     }
-}, 500);
+}, 1000);
 
 
 // const SCRAPBOXURL = "https://scrapbox.io/stk-study-music-theory/";
