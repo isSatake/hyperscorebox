@@ -15,6 +15,7 @@ type ABCBlock = {
     titleElement: HTMLElement
     blockHeight: number
     abc: string
+    isEditing: boolean
 }
 
 const MSG = "hyperscorebox";
@@ -48,6 +49,7 @@ const getABCBlocks = (elementIDs: string[]): ABCBlock[] => {
         const codeBlockDivs = [];
         let codeBlockStr = "";
         let codeBlockHeight = 0;
+        let isEditing = false;
         for (let blockDiv of blockDivs) {
             for(let child of blockDiv.children){
                 if(child.classList.contains("code-block") === true){
@@ -56,19 +58,26 @@ const getABCBlocks = (elementIDs: string[]): ABCBlock[] => {
                     codeBlockHeight += blockDiv.clientHeight;
                 }
             }
+            if(blockDiv.classList.contains("cursor-line")){
+                isEditing = true;
+            }
         }
 
         blocks.push({
             titleElementID: elementID,
             titleElement: titleElement,
             blockHeight: codeBlockHeight,
-            abc: codeBlockStr.replace(/^\nabc\n/, "")
+            abc: codeBlockStr.replace(/^\nabc\n/, ""),
+            isEditing: isEditing
         })
     }
     return blocks;
 };
 
-const divStyle = "position: absolute; top: 0; width: 100%; background: blue;";
+const generateInlineStyle = (isEditing: boolean, abcBlockHeight: number): string => {
+    const top = isEditing ? -(28 + abcBlockHeight) : 0;
+    return `position: absolute; width: 100%; background: #00bcd4; z-index: 100; top: ${top}px; height: ${abcBlockHeight}px;`
+};
 
 console.log(MSG, "hello from hyperscorebox");
 setTimeout(async () => {
@@ -77,10 +86,11 @@ setTimeout(async () => {
     console.log(ABCBlocks);
     for(let ABCBlock of ABCBlocks){
         const div = document.createElement("div");
-        div.setAttribute("style", `${divStyle}height: ${ABCBlock.blockHeight}px;`);
+        div.setAttribute("id", `ABC${ABCBlock.titleElementID}`);
+        div.setAttribute("style", generateInlineStyle(ABCBlock.isEditing, ABCBlock.blockHeight));
         ABCBlock.titleElement.appendChild(div);
     }
-}, 1000);
+}, 5000);
 
 
 // const SCRAPBOXURL = "https://scrapbox.io/stk-study-music-theory/";
