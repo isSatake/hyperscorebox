@@ -33,12 +33,6 @@ export const parseLink = (abc: string): ABCLink[] => {
     return parsedLinks;
 };
 
-const onInput = () => {
-    console.log("inputEl", "oninput");
-    const ABC: string = (inputEl as HTMLInputElement).value;
-    // render(ABC, inputEl as HTMLInputElement, parseLink(ABC));
-};
-
 const addLinkToABC = (abc: string, startChar: number): string => {
     if (shifted) {
         const splitted = abc.split("]");
@@ -55,7 +49,7 @@ const addLinkToABC = (abc: string, startChar: number): string => {
     return `${abc}\n%Links:[${startChar} new]`;
 };
 
-const generateClickListener = (links: ABCLink[]) => {
+const generateClickListener = (links: ABCLink[], parentSVGElID: string) => {
     return (abcElem, tuneNumber, classes): void => {
         console.log("abcClickListener", abcElem, tuneNumber, classes);
         //abcjsによる赤ハイライトを取り消す
@@ -65,6 +59,7 @@ const generateClickListener = (links: ABCLink[]) => {
         const pageTitle: string | null = getLink(links, clickedNoteStartChar);
         if (pageTitle) {
             console.log("abcClickListener", "Linked note is clicked.", "startChar:", clickedNoteStartChar, "destination:", pageTitle);
+            document.getElementById(parentSVGElID).addEventListener("mousedown", e => e.stopPropagation());
             window.open(SCRAPBOXURL + pageTitle);
             return
         }
@@ -88,7 +83,7 @@ const getLink = (links: ABCLink[], startChar: number): string | null => {
 
 export const render = (abc: string, links: ABCLink[], staffWidth: number, svgDivID: string, playerDivID: string): void => {
     const options = {
-        clickListener: generateClickListener(links),
+        clickListener: generateClickListener(links, svgDivID),
         add_classes: true,
         staffwidth: staffWidth
     };
@@ -96,17 +91,44 @@ export const render = (abc: string, links: ABCLink[], staffWidth: number, svgDiv
     console.log("render", "tuneObjectArray", tuneObjectArray);
 
     //リンクをハイライト
-    const voices = tuneObjectArray[0].lines[0].staff[0].voices;
-    for (let voice of voices) {
-        for (let element of voice) {
-            if (!element.startChar) continue;
-            if (getLink(links, Number(element.startChar))) {
-                element.abselem.highlight(undefined, LINK_HIGHLIGHT_COLOR);
+    const lines = tuneObjectArray[0].lines;//[0].staff[0].voices;
+    for (let li in lines) {
+        for (let si in lines[li].staff) {
+            for (let vi in lines[li].staff[si].voices) {
+                let barNumber = 0;
+                let noteNumberOffset = 0;
+                for (let ei in lines[li].staff[si].voices[vi]) {
+                    const element = lines[li].staff[si].voices[vi][ei];
+                    if (element.el_type === "bar"){
+                        barNumber++;
+                        noteNumberOffset = Number(ei) + 1;
+                    }
+                    if (!element.startChar) continue;
+                    if (getLink(links, Number(element.startChar))) {
+                        element.abselem.highlight(undefined, LINK_HIGHLIGHT_COLOR);
+                        const classStr = getClass(Number(li), barNumber, Number(vi), Number(ei) - noteNumberOffset);
+                        document.getElementById(svgDivID).getElementsByClassName(classStr)[0].classList.add("abclink");
+                    }
+                }
             }
         }
     }
 
     // abcjs.renderMidi(playerDivID, abc, {inlineControls: {loopToggle: true,}});
+};
+
+const getClass = (lineNumber: number, measureNumber: number, voiceNumber: number, noteNumber: number) => {
+    return `abcjs-l${lineNumber} abcjs-m${measureNumber} abcjs-v${voiceNumber} abcjs-n${noteNumber}`;
+    // add a prefix to all classes that abcjs adds.
+    // if (ret.length > 0) {
+    //     ret = ret.join(' '); // Some strings are compound classes - that is, specify more than one class in a string.
+    //     ret = ret.split(' ');
+    //     for (var i = 0; i < ret.length; i++) {
+    //         if (ret[i].indexOf('abcjs-') !== 0 && ret[i].length > 0) // if the prefix doesn't already exist and the class is not blank.
+    //             ret[i] = 'abcjs-' + ret[i];
+    //     }
+    // }
+    // return ret.join(' ');
 };
 
 window.addEventListener("mousedown", e => {
