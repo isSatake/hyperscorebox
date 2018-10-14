@@ -55,7 +55,7 @@ const addLinkToABC = (abc: string, startChar: number): string => {
     return `${abc}\n%Links:[${startChar} new]`;
 };
 
-const generateClickListener = (inputEl: HTMLInputElement, links: ABCLink[]) => {
+const generateClickListener = (links: ABCLink[]) => {
     return (abcElem, tuneNumber, classes): void => {
         console.log("abcClickListener", abcElem, tuneNumber, classes);
         //abcjsによる赤ハイライトを取り消す
@@ -69,9 +69,9 @@ const generateClickListener = (inputEl: HTMLInputElement, links: ABCLink[]) => {
             return
         }
 
-        const ABC = inputEl.value;
-        inputEl.value = addLinkToABC(ABC, clickedNoteStartChar);
-        onInput();
+        // const ABC = inputEl.value;
+        // inputEl.value = addLinkToABC(ABC, clickedNoteStartChar);
+        // onInput();
     };
 };
 
@@ -88,7 +88,7 @@ const getLink = (links: ABCLink[], startChar: number): string | null => {
 
 export const render = (abc: string, links: ABCLink[], staffWidth: number, svgDivID: string, playerDivID: string): void => {
     const options = {
-        // clickListener: generateClickListener(inputEl, links),
+        clickListener: generateClickListener(links),
         add_classes: true,
         staffwidth: staffWidth
     };
