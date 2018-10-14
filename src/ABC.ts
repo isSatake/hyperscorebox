@@ -91,23 +91,14 @@ export const render = (abc: string, links: ABCLink[], staffWidth: number, svgDiv
     console.log("render", "tuneObjectArray", tuneObjectArray);
 
     //リンクをハイライト
-    const lines = tuneObjectArray[0].lines;//[0].staff[0].voices;
-    for (let li in lines) {
-        for (let si in lines[li].staff) {
-            for (let vi in lines[li].staff[si].voices) {
-                let barNumber = 0;
-                let noteNumberOffset = 0;
-                for (let ei in lines[li].staff[si].voices[vi]) {
-                    const element = lines[li].staff[si].voices[vi][ei];
-                    if (element.el_type === "bar"){
-                        barNumber++;
-                        noteNumberOffset = Number(ei) + 1;
-                    }
+    const lines = tuneObjectArray[0].lines;
+    for (let line of lines) {
+        for (let staff of line.staff) {
+            for (let voice of staff.voices) {
+                for (let element of voice) {
                     if (!element.startChar) continue;
                     if (getLink(links, Number(element.startChar))) {
                         element.abselem.highlight(undefined, LINK_HIGHLIGHT_COLOR);
-                        const classStr = getClass(Number(li), barNumber, Number(vi), Number(ei) - noteNumberOffset);
-                        document.getElementById(svgDivID).getElementsByClassName(classStr)[0].classList.add("abclink");
                     }
                 }
             }
@@ -115,20 +106,6 @@ export const render = (abc: string, links: ABCLink[], staffWidth: number, svgDiv
     }
 
     // abcjs.renderMidi(playerDivID, abc, {inlineControls: {loopToggle: true,}});
-};
-
-const getClass = (lineNumber: number, measureNumber: number, voiceNumber: number, noteNumber: number) => {
-    return `abcjs-l${lineNumber} abcjs-m${measureNumber} abcjs-v${voiceNumber} abcjs-n${noteNumber}`;
-    // add a prefix to all classes that abcjs adds.
-    // if (ret.length > 0) {
-    //     ret = ret.join(' '); // Some strings are compound classes - that is, specify more than one class in a string.
-    //     ret = ret.split(' ');
-    //     for (var i = 0; i < ret.length; i++) {
-    //         if (ret[i].indexOf('abcjs-') !== 0 && ret[i].length > 0) // if the prefix doesn't already exist and the class is not blank.
-    //             ret[i] = 'abcjs-' + ret[i];
-    //     }
-    // }
-    // return ret.join(' ');
 };
 
 window.addEventListener("mousedown", e => {
