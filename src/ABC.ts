@@ -33,20 +33,14 @@ export const parseLink = (abc: string): ABCLink[] => {
     return parsedLinks;
 };
 
-const addLinkToABC = (abc: string, startChar: number): string => {
-    if (shifted) {
+const addLinkToABC = (startChar: number, abc?: string): string => {
+    if (shifted) { //カレントキャレットがあるコードブロックからstringを取ってこないといけない
         const splitted = abc.split("]");
         const tail = splitted[splitted.length - 2];
         const updatedTail = tail.replace("[", `[${startChar},`);
         return abc.replace(tail, updatedTail);
     }
-    if (/%Links:($|\[(.*|)\d+ .*]$)/.test(abc)) {
-        return `${abc}[${startChar} new]`;
-    }
-    if (/\n$/.test(abc)) {
-        return `${abc}%Links:[${startChar} new]`;
-    }
-    return `${abc}\n%Links:[${startChar} new]`;
+    return `[${startChar} new]`;
 };
 
 const generateClickListener = (links: ABCLink[], parentSVGElID: string) => {
@@ -63,8 +57,8 @@ const generateClickListener = (links: ABCLink[], parentSVGElID: string) => {
             return
         }
 
-        // const ABC = inputEl.value;
-        // inputEl.value = addLinkToABC(ABC, clickedNoteStartChar);
+        //リンクテキスト挿入
+        document.execCommand("insertText", null, addLinkToABC(clickedNoteStartChar));
         // onInput();
     };
 };
@@ -111,5 +105,3 @@ window.addEventListener("click", e => {
     console.log("onmousedown", "shifted:", e.shiftKey);
     shifted = e.shiftKey
 });
-// inputEl.addEventListener("input", onInput);
-// onInput();
