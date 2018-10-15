@@ -59,7 +59,6 @@ const generateClickListener = (links: ABCLink[], parentSVGElID: string) => {
         const pageTitle: string | null = getLink(links, clickedNoteStartChar);
         if (pageTitle) {
             console.log("abcClickListener", "Linked note is clicked.", "startChar:", clickedNoteStartChar, "destination:", pageTitle);
-            document.getElementById(parentSVGElID).addEventListener("mousedown", e => e.stopPropagation());
             window.open(SCRAPBOXURL + pageTitle);
             return
         }
@@ -108,7 +107,7 @@ export const render = (abc: string, links: ABCLink[], staffWidth: number, svgDiv
     // abcjs.renderMidi(playerDivID, abc, {inlineControls: {loopToggle: true,}});
 };
 
-window.addEventListener("mousedown", e => {
+window.addEventListener("click", e => {
     console.log("onmousedown", "shifted:", e.shiftKey);
     shifted = e.shiftKey
 });

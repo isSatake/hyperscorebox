@@ -17,4 +17,10 @@ const update = async () => {
 };
 
 setInterval(async () => await update(), 500);
-window.addEventListener("mousedown", async (e) => await update());
+window.addEventListener("click", async (e) => await update());
+window.addEventListener("mousedown", e => {
+    const editingABCs = document.getElementsByClassName("abcediting");
+    for(let abcEl of editingABCs){
+        abcEl.classList.remove("abcediting");
+    }
+});

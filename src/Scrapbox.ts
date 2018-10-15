@@ -37,7 +37,7 @@ export const getABCBlocks = (elementIDs: string[]): ABCBlock[] => {
                     codeBlockHeight += blockDiv.clientHeight;
                 }
             }
-            if (blockDiv.classList.contains("cursor-line")) {
+            if (titleElement.classList.contains("abcediting")) {
                 isEditing = true;
             }
         }

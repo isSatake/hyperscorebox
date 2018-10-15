@@ -10,6 +10,13 @@ export class ABCPage {
         const scoreDiv = document.createElement("div");
         scoreDiv.setAttribute("id", `ABC${titleElementID}`);
         scoreDiv.setAttribute("style", generateInlineStyle(isEditing, blockHeight));
+        scoreDiv.addEventListener("mousedown", e => {
+            e.stopPropagation();
+            const {classList} = titleElement;
+            if (!classList.contains("abcediting")) {
+                classList.add("abcediting");
+            }
+        });
 
         const svgDiv = document.createElement("div");
         const svgDivID = `SVG${titleElementID}`;
@@ -26,8 +33,6 @@ export class ABCPage {
             parentElementID: titleElementID,
             element: scoreDiv
         });
-        //楽譜描画
-        console.log(titleElement.clientWidth);
         render(abc, parseLink(abc), titleElement.clientWidth - 30, svgDivID, playerDivID);
     };
 
@@ -47,7 +52,6 @@ export class ABCPage {
             return false;
         }
         scoreElement.element.setAttribute("style", generateInlineStyle(block.isEditing, block.blockHeight));
-        //楽譜描画
         return true;
     };
 
