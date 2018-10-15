@@ -53,7 +53,7 @@ const generateClickListener = (links: ABCLink[], parentSVGElID: string) => {
         const pageTitle: string | null = getLink(links, clickedNoteStartChar);
         if (pageTitle) {
             console.log("abcClickListener", "Linked note is clicked.", "startChar:", clickedNoteStartChar, "destination:", pageTitle);
-            window.open(SCRAPBOXURL + pageTitle);
+            window.location.href = SCRAPBOXURL + pageTitle;
             return
         }
 
@@ -80,6 +80,10 @@ export const render = (abc: string, links: ABCLink[], staffWidth: number, svgDiv
         add_classes: true,
         staffwidth: staffWidth
     };
+    // const svgEls = document.getElementById(svgDivID).getElementsByTagName("svg");
+    // if(svgEls.length > 0){
+    //     svgEls[0].remove();
+    // }
     const tuneObjectArray = abcjs.renderAbc(svgDivID, abc, options);
     console.log("render", "tuneObjectArray", tuneObjectArray);
 

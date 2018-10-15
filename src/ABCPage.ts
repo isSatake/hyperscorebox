@@ -47,11 +47,13 @@ export class ABCPage {
     };
 
     private updateElement = (block: ABCBlock): boolean => {
-        const scoreElement = this.getElement(block.titleElementID);
+        const {abc, isEditing, titleElementID, blockHeight, titleElement} = block;
+        const scoreElement = this.getElement(titleElementID);
         if (!scoreElement) {
             return false;
         }
-        scoreElement.element.setAttribute("style", generateInlineStyle(block.isEditing, block.blockHeight));
+        scoreElement.element.setAttribute("style", generateInlineStyle(isEditing, blockHeight));
+        render(abc, parseLink(abc), titleElement.clientWidth - 30, `SVG${titleElementID}`, `PLAYER${titleElementID}`);
         return true;
     };
 
