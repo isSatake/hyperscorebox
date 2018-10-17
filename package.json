@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "clean": "rm -rf dist/*",
-    "copy": "cp ./manifest.json ./dist && cp ./style/style.css ./dist",
+    "copy": "cp ./manifest.json ./dist && cp ./style/style.css ./dist && cp ./style/abcjs-midi.css ./dist",
     "build": "npm run clean && npm run copy && tsc && npm run browserify",
     "browserify": "browserify ./dist/content.js -o ./dist/content.js"
   },

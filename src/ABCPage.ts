@@ -8,6 +8,7 @@ export class ABCPage {
     private pushScoreElement = (block: ABCBlock): void => {
         const {titleElementID, titleElement, blockHeight, abc, isEditing} = block;
         const scoreDiv = document.createElement("div");
+        scoreDiv.classList.add("scoreview");
         scoreDiv.setAttribute("id", `ABC${titleElementID}`);
         scoreDiv.setAttribute("style", generateInlineStyle(isEditing, blockHeight));
         scoreDiv.addEventListener("mousedown", e => {
@@ -21,10 +22,12 @@ export class ABCPage {
         const svgDiv = document.createElement("div");
         const svgDivID = `SVG${titleElementID}`;
         svgDiv.setAttribute("id", svgDivID);
+        // svgDiv.setAttribute("style", `height:${blockHeight - 26}px`);
 
         const playerDiv = document.createElement("div");
         const playerDivID = `PLAYER${titleElementID}`;
         playerDiv.setAttribute("id", playerDivID);
+        playerDiv.setAttribute("style", `margin-top:-10px`);
 
         scoreDiv.appendChild(svgDiv);
         scoreDiv.appendChild(playerDiv);

@@ -16,7 +16,8 @@
         "content.js"
       ],
       "css": [
-        "style.css"
+        "style.css",
+        "abcjs-midi.css"
       ]
     }
   ],

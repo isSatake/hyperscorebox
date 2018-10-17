@@ -32,7 +32,6 @@ export const getABCBlocks = (elementIDs: string[]): ABCBlock[] => {
         for (let blockDiv of blockDivs) {
             for (let child of blockDiv.children) {
                 if (child.classList.contains("code-block") === true) {
-                    console.log("textContent", blockDiv.textContent);
                     codeBlockDivs.push(blockDiv);
                     codeBlockStr += `\n${blockDiv.textContent.replace(/^\t+/, "")}`;
                     codeBlockHeight += blockDiv.clientHeight;

@@ -80,10 +80,6 @@ export const render = (abc: string, links: ABCLink[], staffWidth: number, svgDiv
         add_classes: true,
         staffwidth: staffWidth
     };
-    // const svgEls = document.getElementById(svgDivID).getElementsByTagName("svg");
-    // if(svgEls.length > 0){
-    //     svgEls[0].remove();
-    // }
     const tuneObjectArray = abcjs.renderAbc(svgDivID, abc, options);
     console.log("render", "tuneObjectArray", tuneObjectArray);
 
@@ -102,7 +98,7 @@ export const render = (abc: string, links: ABCLink[], staffWidth: number, svgDiv
         }
     }
 
-    // abcjs.renderMidi(playerDivID, abc, {inlineControls: {loopToggle: true,}});
+    // abcjs.renderMidi(playerDivID, abc, {inlineControls: {loopToggle: true}});
 };
 
 window.addEventListener("click", e => {
