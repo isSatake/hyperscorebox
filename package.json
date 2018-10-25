@@ -18,6 +18,7 @@
     "typescript": "^2.9.2"
   },
   "dependencies": {
+    "@types/webmidi": "^2.0.2",
     "abcjs": "^5.3.4"
   }
 }

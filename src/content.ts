@@ -1,6 +1,7 @@
 import {ABCPage} from "./ABCPage";
 import {getABCBlocks, getABCElIDs, getPageLines} from "./Scrapbox";
 import {ABCBlock} from "./Types";
+import {requestMIDIAccessFailure, requestMIDIAccessSuccess} from "./MIDI";
 
 const MSG = "hyperscorebox";
 
@@ -24,3 +25,5 @@ window.addEventListener("mousedown", e => {
         abcEl.classList.remove("abcediting");
     }
 });
+
+navigator.requestMIDIAccess().then(requestMIDIAccessSuccess, requestMIDIAccessFailure);
