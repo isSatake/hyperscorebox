@@ -68,4 +68,5 @@ dist.zip
 *.swp
 
 .DS_Store
-/dist/
+/dist/*
+!.gitkeep
