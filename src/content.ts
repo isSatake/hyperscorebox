@@ -1,12 +1,12 @@
 import {ABCPage} from "./ABCPage";
 import {getABCBlocks, getABCElIDs, getPageLines} from "./Scrapbox";
 import {ABCBlock} from "./Types";
-import {createInput} from "./IME";
+import {initIME} from "./IME";
 
 const MSG = "hyperscorebox";
 
 console.log(MSG, "hello from hyperscorebox");
-createInput();
+initIME();
 const page = new ABCPage();
 const update = async () => {
     const ABCIDs = getABCElIDs(await getPageLines());
