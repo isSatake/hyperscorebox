@@ -1,6 +1,4 @@
-import * as abcjs from "abcjs/midi";
-
-const CANDIDATE_CLASS_NAME = "note-candidate";
+import {IMECandidate} from "./IMECandidate";
 
 const dict = [
     [
@@ -19,35 +17,43 @@ const dict = [
         "%%score (A B)\n" +
         "[V:A]d,b,(gf) gb,gb, d,,b,(gf) gb,gb, |[V:B]d,8 d,,8 | "
     ],
+    [
+        "cello1-12",
+        "K:D\n" +
+        "M:C\n" +
+        "L:1/16\n" +
+        "%%score (A B)\n" +
+        "[V:A]d,a,(fe) fa,fa, d,,a,(fe) fa,fa, |d,b,(gf) gb,gb, d,,b,(gf) gb,gb, |[V:B]d,8 d,,8 |d,8 d,,8 |"
+    ],
     ["C", "[ceg]"],
     ["Cm", "[c_eg]"],
     ["Am", "[ace]"],
     ["V", "[gbd]"], //動的辞書の例
 ];
+const candidates: IMECandidate[] = [];
 
 const search = (input: string): string[] => {
     console.log("search", input);
     if (input === "") return [];
-    const candidates = [];
+    const candidatesStr = [];
     for (let word of dict) {
         console.log("search", `new RegExp(".*" + ${input} + ".*").test(${word[0]})`);
         if (new RegExp(".*" + input + ".*").test(word[0])) {
-            candidates.push(word[1])
+            candidatesStr.push(word[1])
         }
     }
-    return candidates
+    return candidatesStr
 };
 
-const renderCandidates = (candidates: string[]): void => {
-    for (let i in candidates) {
-        abcjs.renderAbc(`note-candidate-${i}`, candidates[i], {responsive: "resize"});
+const renderCandidates = (candidatesStr: string[]): void => {
+    for (let i in candidatesStr) {
+        candidates[i].render(candidatesStr[i]);
     }
 };
 
 const refreshCandidates = (): void => {
-    const candidateEls = document.getElementsByClassName(CANDIDATE_CLASS_NAME);
-    for (let candidateEl of candidateEls) {
-        candidateEl.textContent = null;
+    for (let candidate of candidates) {
+        candidate.reset()
     }
 };
 
@@ -58,18 +64,36 @@ const onInput = (input: string): void => {
     console.log("onkeyup", candidates);
 };
 
+/*
+* 各種Elementの初期化
+*   input✅
+*   candidateの入れ物✅
+*       onclick => クリックボードにコピー
+*   コピペ用abcdiv✅
+* キーボード入力✅
+* 候補オブジェクト生成✅
+* 候補div描画✅
+*   abcテキストも
+* 候補選択
+* 選択されたオブジェクトからabcをクリップボードにコピー
+* 候補オブジェクトリセット
+* 候補divリセット
+*
+* */
+
 export const initIME = () => {
     const formEl = document.createElement("input");
     formEl.addEventListener("keyup", () => onInput(formEl.value));
 
     const candidatesEl = document.createElement("div");
     candidatesEl.setAttribute("id", "imecandidates");
-    for (let i = 5; i > -1; i--) {
-        const candidateEl = document.createElement("div");
-        candidateEl.classList.add(CANDIDATE_CLASS_NAME);
+    candidatesEl.style.display = "flex";
+    candidatesEl.style.flexDirection = "column-reverse";
 
-        candidateEl.setAttribute("id", `note-candidate-${i}`);
-        candidatesEl.appendChild(candidateEl)
+    for (let i = 0; i < 6; i++) {
+        const candidate = new IMECandidate(i);
+        candidates.push(candidate);
+        candidatesEl.appendChild(candidate.div)
     }
 
     const IMEEl = document.createElement("div");
