@@ -78,8 +78,13 @@ export const initIME = () => {
     candidatesEl.style.display = "flex";
     candidatesEl.style.flexDirection = "column-reverse";
 
+    const onSelected = (): void => {
+        refreshCandidates();
+        formEl.value = "";
+    };
+
     for (let i = 0; i < 6; i++) {
-        const candidate = new IMECandidate(i);
+        const candidate = new IMECandidate(i, onSelected);
         candidates.push(candidate);
         candidatesEl.appendChild(candidate.getDiv());
     }

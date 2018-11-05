@@ -7,8 +7,9 @@ export class IMECandidate {
     private readonly abcContainerId: string;
     private readonly abcContainerEl: HTMLDivElement;
     private readonly div: HTMLDivElement;
+    private readonly onSelected: () => void;
 
-    constructor(index: number) {
+    constructor(index: number, onSelected: () => void) {
         this.index = index;
         this.msg = `IMECandidate#${this.index}`;
         this.abcContainerId = `note-candidate-${index}`;
@@ -21,6 +22,7 @@ export class IMECandidate {
         this.div.appendChild(this.abcTextEl);
         this.div.appendChild(this.abcContainerEl);
         this.div.addEventListener("click", this.onClick);
+        this.onSelected = onSelected;
     }
 
     public getDiv = () => this.div;
@@ -31,7 +33,8 @@ export class IMECandidate {
     };
     private onClick = () => {
         console.log(this.msg, "onclick");
-        this.copyToClipboard()
+        this.copyToClipboard();
+        this.onSelected();
     };
     private copyToClipboard = () => {
         console.log(this.msg, "copyToClipboard", `"${this.abcTextEl.value}"`);
