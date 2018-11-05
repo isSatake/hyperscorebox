@@ -1,40 +1,48 @@
 import * as abcjs from "abcjs/midi";
 
 export class IMECandidate {
-    private index: number;
-    private id: string;
-    private abcText: string;
-    private abcTextEl: HTMLInputElement;
-    public div: HTMLDivElement;
-    constructor(index: number){
+    private readonly index: number;
+    private readonly msg: string;
+    private readonly abcTextEl: HTMLTextAreaElement;
+    private readonly abcContainerId: string;
+    private readonly abcContainerEl: HTMLDivElement;
+    private readonly div: HTMLDivElement;
+
+    constructor(index: number) {
         this.index = index;
-        this.id = `note-candidate-${index}`;
-        this.abcTextEl = document.createElement("input");
-        this.abcTextEl.style.display = "none";
+        this.msg = `IMECandidate#${this.index}`;
+        this.abcContainerId = `note-candidate-${index}`;
+        this.abcContainerEl = document.createElement("div");
+        this.abcContainerEl.setAttribute("id", this.abcContainerId);
+        this.abcTextEl = document.createElement("textarea");
+        this.abcTextEl.style.position = "absolute";
+        this.abcTextEl.style.left = "-1000px";
         this.div = document.createElement("div");
         this.div.appendChild(this.abcTextEl);
-        this.div.setAttribute("id", this.id);
+        this.div.appendChild(this.abcContainerEl);
         this.div.addEventListener("click", this.onClick);
     }
-    render(abc: string){
-        console.log(this.id, "render");
-        //楽譜描画
-        abcjs.renderAbc(this.id, abc, {responsive: "resize"});
-        //テキスト描画
+
+    public getDiv = () => this.div;
+    public render = (abc: string) => {
+        console.log(this.msg, "render");
+        abcjs.renderAbc(this.abcContainerId, abc, {responsive: "resize"});
         this.abcTextEl.value = abc;
-    }
-    onClick(){
-        console.log(this.id, "onclick");
+    };
+    private onClick = () => {
+        console.log(this.msg, "onclick");
         this.copyToClipboard()
-    }
-    copyToClipboard(){
+    };
+    private copyToClipboard = () => {
+        console.log(this.msg, "copyToClipboard", `"${this.abcTextEl.value}"`);
         this.abcTextEl.select();
         document.execCommand("copy");
-    }
-    reset(){
-        console.log(this.id, "reset");
-        // this.div.textContent = null; //abcTextElが要素ごと消されてる
-        //svgだけ消したいな
-        //よくわからん
-    }
+    };
+    public reset = () => {
+        console.log(this.msg, "reset");
+        this.abcTextEl.value = "";
+        this.abcContainerEl.textContent = "";
+        this.abcContainerEl.classList.remove("abcjs-container");
+        this.abcContainerEl.setAttribute("style", "");
+    };
 }

@@ -65,18 +65,6 @@ const onInput = (input: string): void => {
 };
 
 /*
-* 各種Elementの初期化
-*   input✅
-*   candidateの入れ物✅
-*       onclick => クリックボードにコピー
-*   コピペ用abcdiv✅
-* キーボード入力✅
-* 候補オブジェクト生成✅
-* 候補div描画✅
-*   abcテキストも
-* 候補選択
-* 選択されたオブジェクトからabcをクリップボードにコピー
-* 候補オブジェクトリセット
 * 候補divリセット
 *
 * */
@@ -93,7 +81,7 @@ export const initIME = () => {
     for (let i = 0; i < 6; i++) {
         const candidate = new IMECandidate(i);
         candidates.push(candidate);
-        candidatesEl.appendChild(candidate.div)
+        candidatesEl.appendChild(candidate.getDiv());
     }
 
     const IMEEl = document.createElement("div");
