@@ -64,11 +64,6 @@ const onInput = (input: string): void => {
     console.log("onkeyup", candidates);
 };
 
-/*
-* 候補divリセット
-*
-* */
-
 export const initIME = () => {
     const formEl = document.createElement("input");
     formEl.addEventListener("keyup", () => onInput(formEl.value));

@@ -8,6 +8,7 @@ export class IMECandidate {
     private readonly abcContainerEl: HTMLDivElement;
     private readonly div: HTMLDivElement;
     private readonly onSelected: () => void;
+    private readonly messageEl: HTMLDivElement;
 
     constructor(index: number, onSelected: () => void) {
         this.index = index;
@@ -18,9 +19,16 @@ export class IMECandidate {
         this.abcTextEl = document.createElement("textarea");
         this.abcTextEl.style.position = "absolute";
         this.abcTextEl.style.left = "-1000px";
+        this.messageEl = document.createElement("div");
+        this.messageEl.innerText = "Copied!";
+        this.messageEl.style.display = "none";
         this.div = document.createElement("div");
+        this.div.style.cursor = "pointer";
         this.div.appendChild(this.abcTextEl);
         this.div.appendChild(this.abcContainerEl);
+        this.div.appendChild(this.messageEl);
+        this.div.addEventListener("mouseenter", () => this.div.style.backgroundColor = "#dcf6ff");
+        this.div.addEventListener("mouseleave", () => this.div.style.backgroundColor = "#ffffff");
         this.div.addEventListener("click", this.onClick);
         this.onSelected = onSelected;
     }
@@ -31,9 +39,11 @@ export class IMECandidate {
         abcjs.renderAbc(this.abcContainerId, abc, {responsive: "resize"});
         this.abcTextEl.value = abc;
     };
-    private onClick = () => {
+    private onClick = async () => {
         console.log(this.msg, "onclick");
         this.copyToClipboard();
+        this.reset();
+        await this.onCopied();
         this.onSelected();
     };
     private copyToClipboard = () => {
@@ -41,6 +51,14 @@ export class IMECandidate {
         this.abcTextEl.select();
         document.execCommand("copy");
     };
+    private onCopied = () => new Promise(resolve => {
+        this.reset();
+        this.messageEl.style.display = "";
+        setTimeout(() => {
+            this.messageEl.style.display = "none";
+            resolve();
+        }, 1000);
+    });
     public reset = () => {
         console.log(this.msg, "reset");
         this.abcTextEl.value = "";
