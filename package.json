@@ -18,6 +18,7 @@
     "typescript": "^2.9.2"
   },
   "dependencies": {
-    "abcjs": "^5.3.4"
+    "abcjs": "^5.3.4",
+    "jquery": "^3.3.1"
   }
 }

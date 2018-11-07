@@ -41,17 +41,17 @@ export class IMECandidate {
     };
     private onClick = async () => {
         console.log(this.msg, "onclick");
-        this.copyToClipboard();
-        this.reset();
-        await this.onCopied();
+        await this.copyToClipboard();
         this.onSelected();
     };
-    private copyToClipboard = () => {
+    private copyToClipboard = async () => {
         console.log(this.msg, "copyToClipboard", `"${this.abcTextEl.value}"`);
         this.abcTextEl.select();
         document.execCommand("copy");
+        await this.onCopied();
     };
     private onCopied = () => new Promise(resolve => {
+        this.messageEl.style.height = `${this.div.clientHeight}px`;
         this.reset();
         this.messageEl.style.display = "";
         setTimeout(() => {

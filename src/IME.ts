@@ -66,6 +66,8 @@ const onInput = (input: string): void => {
 
 export const initIME = () => {
     const formEl = document.createElement("input");
+    formEl.style.border = "none";
+    formEl.style.width = "100%";
     formEl.addEventListener("keyup", () => onInput(formEl.value));
 
     const candidatesEl = document.createElement("div");
@@ -93,6 +95,7 @@ export const initIME = () => {
     style.zIndex = "300";
     style.width = "400px";
     style.backgroundColor = "white";
+    style.boxShadow = "0 0 5px 1px grey";
     IMEEl.appendChild(candidatesEl);
     IMEEl.appendChild(formEl);
 
