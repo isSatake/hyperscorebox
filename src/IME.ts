@@ -65,40 +65,52 @@ const onInput = (input: string): void => {
 };
 
 export const initIME = () => {
-    const formEl = document.createElement("input");
-    formEl.style.border = "none";
-    formEl.style.width = "100%";
-    formEl.addEventListener("keyup", () => onInput(formEl.value));
-
-    const candidatesEl = document.createElement("div");
-    candidatesEl.setAttribute("id", "imecandidates");
-    candidatesEl.style.display = "flex";
-    candidatesEl.style.flexDirection = "column-reverse";
-
-    const onSelected = (): void => {
-        refreshCandidates();
-        formEl.value = "";
-    };
-
-    for (let i = 0; i < 6; i++) {
-        const candidate = new IMECandidate(i, onSelected);
-        candidates.push(candidate);
-        candidatesEl.appendChild(candidate.getDiv());
-    }
-
     const IMEEl = document.createElement("div");
     IMEEl.setAttribute("id", "ime");
+    IMEEl.innerText = "IMEだお";
     const {style} = IMEEl;
-    style.position = "fixed";
-    style.bottom = "22px";
-    style.left = "2px";
+    style.position = "absolute";
     style.zIndex = "300";
     style.width = "400px";
-    style.backgroundColor = "white";
-    style.boxShadow = "0 0 5px 1px grey";
-    IMEEl.appendChild(candidatesEl);
-    IMEEl.appendChild(formEl);
+    style.boxShadow = "0 0 5px 1px red";
 
-    const container = document.getElementById("app-container");
+    const textInput = document.getElementById('text-input');
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach(() => {
+            //追従
+            style.top = `${textInput.offsetTop + 20}px`;
+            style.left = textInput.style.left;
+        });
+    });
+
+    observer.observe(textInput, {attributes: true});
+
+
+    // const formEl = document.createElement("input");
+    // formEl.style.border = "none";
+    // formEl.style.width = "100%";
+    // formEl.addEventListener("keyup", () => onInput(formEl.value));
+    //
+    // const candidatesEl = document.createElement("div");
+    // candidatesEl.setAttribute("id", "imecandidates");
+    // candidatesEl.style.display = "flex";
+    // candidatesEl.style.flexDirection = "column-reverse";
+    //
+    // const onSelected = (): void => {
+    //     refreshCandidates();
+    //     formEl.value = "";
+    // };
+    //
+    // for (let i = 0; i < 6; i++) {
+    //     const candidate = new IMECandidate(i, onSelected);
+    //     candidates.push(candidate);
+    //     candidatesEl.appendChild(candidate.getDiv());
+    // }
+
+
+    // IMEEl.appendChild(candidatesEl);
+    // IMEEl.appendChild(formEl);
+
+    const container = document.querySelector("#editor");
     container.appendChild(IMEEl);
 };

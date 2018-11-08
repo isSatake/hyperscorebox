@@ -6,7 +6,9 @@ import {initIME} from "./IME";
 const MSG = "hyperscorebox";
 
 console.log(MSG, "hello from hyperscorebox");
-initIME();
+
+setTimeout(initIME,3000)
+
 const page = new ABCPage();
 const update = async () => {
     const ABCIDs = getABCElIDs(await getPageLines());
