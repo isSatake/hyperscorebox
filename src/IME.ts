@@ -67,7 +67,6 @@ const onInput = (input: string): void => {
 export const initIME = () => {
     const IMEEl = document.createElement("div");
     IMEEl.setAttribute("id", "ime");
-    IMEEl.innerText = "楽譜IME";
     const {style} = IMEEl;
     style.position = "absolute";
     style.zIndex = "1000";
@@ -84,14 +83,45 @@ export const initIME = () => {
             style.left = textInput.style.left;
         });
     });
-
     observer.observe(textInput, {attributes: true});
+    const container = document.getElementById("editor");
+    container.appendChild(IMEEl);
+
+    const textarea = document.createElement("input");
+    textarea.style.border = "none";
+    textarea.style.width = "99%";
+    textarea.style.height = "99%";
+    textarea.style.marginLeft = "2px";
+    textarea.addEventListener("click", e => {
+        e.preventDefault();
+        e.stopPropagation();
+        return true;
+    });
+    IMEEl.appendChild(textarea);
+
+    let text = "";
+    const caret = document.getElementById("text-input");
+    caret.addEventListener("keydown", e => {
+        const {key} = e;
+        if (key === "Control" || key === "Alt" || key === "Meta" || key === "Tab" || key === "Shift") {
+            return false;
+        }
+        if (key === "Enter") {
+            if(!text) return false;
+            document.execCommand("insertText", null, text);
+            text = "";
+        } else if (key === "Backspace") {
+            if(!text) return false;
+            text = text.substr(0, text.length - 1);
+        } else {
+            text += key;
+        }
+        textarea.value = text;
+        e.preventDefault();
+        e.stopPropagation();
+    });
 
 
-    // const formEl = document.createElement("input");
-    // formEl.style.border = "none";
-    // formEl.style.width = "100%";
-    // formEl.addEventListener("keyup", () => onInput(formEl.value));
     //
     // const candidatesEl = document.createElement("div");
     // candidatesEl.setAttribute("id", "imecandidates");
@@ -113,6 +143,4 @@ export const initIME = () => {
     // IMEEl.appendChild(candidatesEl);
     // IMEEl.appendChild(formEl);
 
-    const container = document.querySelector("#editor");
-    container.appendChild(IMEEl);
 };
