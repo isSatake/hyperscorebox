@@ -67,12 +67,14 @@ const onInput = (input: string): void => {
 export const initIME = () => {
     const IMEEl = document.createElement("div");
     IMEEl.setAttribute("id", "ime");
-    IMEEl.innerText = "IMEだお";
+    IMEEl.innerText = "楽譜IME";
     const {style} = IMEEl;
     style.position = "absolute";
-    style.zIndex = "300";
+    style.zIndex = "1000";
     style.width = "400px";
-    style.boxShadow = "0 0 5px 1px red";
+    style.boxShadow = "#dedede 0 0 5px 1px";
+    style.backgroundColor = "white";
+    style.border = "#ababab solid 1.5px";
 
     const textInput = document.getElementById('text-input');
     const observer = new MutationObserver((mutations) => {
