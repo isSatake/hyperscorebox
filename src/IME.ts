@@ -1,4 +1,5 @@
 import {IMECandidate} from "./IMECandidate";
+import * as abcjs from "abcjs/midi";
 
 const dict = [
     [
@@ -89,9 +90,10 @@ export const initIME = () => {
 
     const textarea = document.createElement("input");
     textarea.style.border = "none";
-    textarea.style.width = "99%";
-    textarea.style.height = "99%";
-    textarea.style.marginLeft = "2px";
+    textarea.style.width = "99.7%";
+    textarea.style.height = "30px";
+    textarea.style.marginLeft = "1px";
+    textarea.style.borderBottom = "#991212 solid 1px";
     textarea.addEventListener("click", e => {
         e.preventDefault();
         e.stopPropagation();
@@ -99,34 +101,42 @@ export const initIME = () => {
     });
     IMEEl.appendChild(textarea);
 
+    const svgEl = document.createElement("div");
+    svgEl.setAttribute("id", "imesvg");
+    IMEEl.appendChild(svgEl);
+
     let text = "";
     const caret = document.getElementById("text-input");
     caret.addEventListener("keydown", e => {
         const {key} = e;
-        if (key === "Control" || key === "Alt" || key === "Meta" || key === "Tab" || key === "Shift") {
+        if (/(Control|Alt|Meta|Tab|Shift|Dead|Delete|Allow.*)/.test(key)) {
             return false;
         }
-        if (key === "Enter") {
-            if(!text) return false;
+        if (key === "Escape") {
+            text = ""
+        } else if (key === "Enter") {
+            if (!text) return false;
             document.execCommand("insertText", null, text);
             text = "";
         } else if (key === "Backspace") {
-            if(!text) return false;
+            if (!text) return false;
             text = text.substr(0, text.length - 1);
         } else {
             text += key;
         }
         textarea.value = text;
+        abcjs.renderAbc("imesvg", text, {responsive: "resize"});
         e.preventDefault();
         e.stopPropagation();
     });
 
+    //同じabcブロック内にヘッダ情報があれば取り込む(タイトルとかは省く)
 
-    //
+
     // const candidatesEl = document.createElement("div");
     // candidatesEl.setAttribute("id", "imecandidates");
     // candidatesEl.style.display = "flex";
-    // candidatesEl.style.flexDirection = "column-reverse";
+    // candidatesEl.style.flexDirection = "column";
     //
     // const onSelected = (): void => {
     //     refreshCandidates();
@@ -138,9 +148,8 @@ export const initIME = () => {
     //     candidates.push(candidate);
     //     candidatesEl.appendChild(candidate.getDiv());
     // }
-
-
+    //
+    //
     // IMEEl.appendChild(candidatesEl);
-    // IMEEl.appendChild(formEl);
 
 };
