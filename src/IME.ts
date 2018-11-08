@@ -76,17 +76,26 @@ export const initIME = () => {
     style.backgroundColor = "white";
     style.border = "#ababab solid 1.5px";
 
+    //キャレットに追従
     const textInput = document.getElementById('text-input');
-    const observer = new MutationObserver((mutations) => {
+    const textInputObserver = new MutationObserver(mutations => {
         mutations.forEach(() => {
-            //追従
             style.top = `${textInput.offsetTop + 20}px`;
             style.left = textInput.style.left;
         });
     });
-    observer.observe(textInput, {attributes: true});
+    textInputObserver.observe(textInput, {attributes: true});
     const container = document.getElementById("editor");
     container.appendChild(IMEEl);
+
+    //キャレットが消えたらIMEも消える
+    const caret = container.querySelector(".cursor") as HTMLElement;
+    const caretObserver = new MutationObserver(mutations => {
+        mutations.forEach(() => {
+            style.display = caret.style.display;
+        });
+    });
+    caretObserver.observe(caret, {attributes: true});
 
     const textarea = document.createElement("input");
     textarea.style.border = "none";
@@ -106,9 +115,11 @@ export const initIME = () => {
     IMEEl.appendChild(svgEl);
 
     let text = "";
-    const caret = document.getElementById("text-input");
-    caret.addEventListener("keydown", e => {
+    textInput.addEventListener("keydown", e => {
         const {key} = e;
+        if (style.display === "none") {
+            return false;
+        }
         if (/(Control|Alt|Meta|Tab|Shift|Dead|Delete|Allow.*)/.test(key)) {
             return false;
         }
@@ -130,7 +141,7 @@ export const initIME = () => {
         e.stopPropagation();
     });
 
-    //同じabcブロック内にヘッダ情報があれば取り込む(タイトルとかは省く)
+    //同じabcブロック内にヘッダ情報があれば取り込む(キーとかlengthとか)(タイトルとかは省く)
 
 
     // const candidatesEl = document.createElement("div");
