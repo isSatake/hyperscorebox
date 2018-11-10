@@ -97,6 +97,7 @@ export const initIME = () => {
     style.position = "absolute";
     style.zIndex = "1000";
     style.width = "400px";
+    style.padding = "0 0.5px 1px 1px";
     style.boxShadow = "#dedede 0 0 5px 1px";
     style.backgroundColor = "white";
     style.border = "#ababab solid 1.5px";
@@ -143,9 +144,8 @@ export const initIME = () => {
 
     const textarea = document.createElement("input");
     textarea.style.border = "none";
-    textarea.style.width = "99.7%";
+    textarea.style.width = "95%";
     textarea.style.height = "30px";
-    textarea.style.marginLeft = "1px";
     textarea.addEventListener("click", e => {
         e.preventDefault();
         e.stopPropagation();
@@ -154,13 +154,13 @@ export const initIME = () => {
     IMEEl.appendChild(textarea);
 
     const svgEl = document.createElement("div");
-    svgEl.style.borderBottom = "#991212 solid 1px";
+    svgEl.style.width = "100%";
+    svgEl.style.background = "#f5f5f5";
     svgEl.setAttribute("id", "imesvg");
     IMEEl.appendChild(svgEl);
 
 
     const candidatesEl = document.createElement("div");
-    candidatesEl.style.marginLeft = "1px";
     candidatesEl.setAttribute("id", "imecandidates");
 
     const onSelected = (): void => {
@@ -183,11 +183,13 @@ export const initIME = () => {
         if (style.display === "none") {
             return false;
         }
-        //無視するキー
-        if (/(Control|Alt|Meta|Shift|Dead|Delete|Arrow.*|Tab)/.test(key)) {
+        //スルーするキー
+        if (/(Control|Alt|Meta|Shift|Dead|Delete|Arrow.*)/.test(key)) {
             return false;
         }
-        if (key === "Escape") {
+        //握りつぶすキー
+        if (key === "Tab") {
+        } else if (key === "Escape") {
             text = "";
             resetHighlight();
         } else if (key === "Enter") {
@@ -218,5 +220,6 @@ export const initIME = () => {
     });
 
     //同じabcブロック内にヘッダ情報があれば取り込む(キーとかlengthとか)(タイトルとかは省く)
+    //input内のキャレット移動を可能にする(書き終わってからのリズム訂正やアーティキュレーション挿入が可能になる)
 
 };

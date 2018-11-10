@@ -19,7 +19,7 @@ export class IMECandidate {
         this.abcContainerEl.setAttribute("id", this.abcContainerId);
         this.abcTextEl = document.createElement("textarea");
         this.abcTextEl.style.position = "absolute";
-        this.abcTextEl.style.left = "-1000px";
+        this.abcTextEl.style.left = "-10000px";
         this.messageEl = document.createElement("div");
         this.messageEl.innerText = "Copied!";
         this.messageEl.style.display = "none";
