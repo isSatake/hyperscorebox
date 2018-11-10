@@ -92,10 +92,29 @@ export const initIME = () => {
     const caret = container.querySelector(".cursor") as HTMLElement;
     const caretObserver = new MutationObserver(mutations => {
         mutations.forEach(() => {
-            style.display = caret.style.display;
+            if (caret.style.display === "") {
+                //キャレット表示時
+                //キャレットがコードブロック外なら消える
+                //.lines.line.section-n.section-title.abcediting なら表示
+                const cursorLine = container.querySelector(".cursor-line");
+                for (let c of cursorLine.classList) {
+                    if (/section-[0-9]+/.test(c)) {
+                        const sectionTitleLine = container.querySelector(`.${c}`);
+                        if (sectionTitleLine.classList.contains("abcediting")) {
+                            //表示
+                            style.display = "";
+                            return;
+                        }
+                    }
+                }
+            }
+            style.display = "none";
         });
     });
     caretObserver.observe(caret, {attributes: true});
+
+
+    //Escで表示切替
 
     const textarea = document.createElement("input");
     textarea.style.border = "none";
@@ -120,7 +139,8 @@ export const initIME = () => {
         if (style.display === "none") {
             return false;
         }
-        if (/(Control|Alt|Meta|Tab|Shift|Dead|Delete|Allow.*)/.test(key)) {
+        //スルーするキー
+        if (/(Control|Alt|Meta|Shift|Dead|Delete|Arrow.*)/.test(key)) {
             return false;
         }
         if (key === "Escape") {

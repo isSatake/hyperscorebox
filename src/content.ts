@@ -7,7 +7,7 @@ const MSG = "hyperscorebox";
 
 console.log(MSG, "hello from hyperscorebox");
 
-setTimeout(initIME,3000)
+setTimeout(initIME, 3000)
 
 const page = new ABCPage();
 const update = async () => {
