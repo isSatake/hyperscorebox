@@ -31,14 +31,13 @@ const dict = [
     ["Am", "[ace]"],
     ["V", "[gbd]"], //動的辞書の例
 ];
-const candidates: IMECandidate[] = [];
+const candidateContainers: IMECandidate[] = [];
 
 const search = (input: string): string[] => {
     console.log("search", input);
     if (input === "") return [];
     const candidatesStr = [];
     for (let word of dict) {
-        console.log("search", `new RegExp(".*" + ${input} + ".*").test(${word[0]})`);
         if (new RegExp(".*" + input + ".*").test(word[0])) {
             candidatesStr.push(word[1])
         }
@@ -48,21 +47,47 @@ const search = (input: string): string[] => {
 
 const renderCandidates = (candidatesStr: string[]): void => {
     for (let i in candidatesStr) {
-        candidates[i].render(candidatesStr[i]);
+        candidateContainers[i].render(candidatesStr[i]);
     }
 };
 
 const refreshCandidates = (): void => {
-    for (let candidate of candidates) {
+    for (let candidate of candidateContainers) {
         candidate.reset()
     }
 };
 
+let candidates = [];
+
 const onInput = (input: string): void => {
     refreshCandidates();
-    const candidates = search(input);
+    candidates = search(input);
     renderCandidates(candidates);
     console.log("onkeyup", candidates);
+};
+
+let highlightIndex = -1;
+
+const updateHighlight = () => {
+    for (let i in candidateContainers) {
+        candidateContainers[i].highlight(Number(i) === highlightIndex);
+    }
+};
+
+const highlightNext = () => {
+    //候補が7個以上になった場合動かない
+    if (highlightIndex === candidates.length - 1) {
+        highlightIndex = -1;
+        updateHighlight();
+        return;
+    }
+    highlightIndex++;
+    updateHighlight();
+};
+
+const resetHighlight = () => {
+    highlightIndex = -1;
+    updateHighlight();
 };
 
 export const initIME = () => {
@@ -121,7 +146,6 @@ export const initIME = () => {
     textarea.style.width = "99.7%";
     textarea.style.height = "30px";
     textarea.style.marginLeft = "1px";
-    textarea.style.borderBottom = "#991212 solid 1px";
     textarea.addEventListener("click", e => {
         e.preventDefault();
         e.stopPropagation();
@@ -130,8 +154,28 @@ export const initIME = () => {
     IMEEl.appendChild(textarea);
 
     const svgEl = document.createElement("div");
+    svgEl.style.borderBottom = "#991212 solid 1px";
     svgEl.setAttribute("id", "imesvg");
     IMEEl.appendChild(svgEl);
+
+
+    const candidatesEl = document.createElement("div");
+    candidatesEl.style.marginLeft = "1px";
+    candidatesEl.setAttribute("id", "imecandidates");
+
+    const onSelected = (): void => {
+        // refreshCandidates();
+        // formEl.value = "";
+    };
+
+    for (let i = 0; i < 6; i++) {
+        const candidate = new IMECandidate(i, onSelected);
+        candidateContainers.push(candidate);
+        candidatesEl.appendChild(candidate.getDiv());
+    }
+
+    IMEEl.appendChild(candidatesEl);
+
 
     let text = "";
     textInput.addEventListener("keydown", e => {
@@ -139,48 +183,40 @@ export const initIME = () => {
         if (style.display === "none") {
             return false;
         }
-        //スルーするキー
-        if (/(Control|Alt|Meta|Shift|Dead|Delete|Arrow.*)/.test(key)) {
+        //無視するキー
+        if (/(Control|Alt|Meta|Shift|Dead|Delete|Arrow.*|Tab)/.test(key)) {
             return false;
         }
         if (key === "Escape") {
-            text = ""
+            text = "";
+            resetHighlight();
         } else if (key === "Enter") {
             if (!text) return false;
+            if (highlightIndex > -1) {
+                text = candidates[highlightIndex];
+            }
             document.execCommand("insertText", null, text);
             text = "";
+            resetHighlight();
         } else if (key === "Backspace") {
             if (!text) return false;
             text = text.substr(0, text.length - 1);
+            resetHighlight();
+        } else if (key === " ") {
+            if (!text) return false;
+            //候補選択
+            highlightNext();
         } else {
             text += key;
+            resetHighlight();
         }
         textarea.value = text;
         abcjs.renderAbc("imesvg", text, {responsive: "resize"});
+        onInput(text);
         e.preventDefault();
         e.stopPropagation();
     });
 
     //同じabcブロック内にヘッダ情報があれば取り込む(キーとかlengthとか)(タイトルとかは省く)
-
-
-    // const candidatesEl = document.createElement("div");
-    // candidatesEl.setAttribute("id", "imecandidates");
-    // candidatesEl.style.display = "flex";
-    // candidatesEl.style.flexDirection = "column";
-    //
-    // const onSelected = (): void => {
-    //     refreshCandidates();
-    //     formEl.value = "";
-    // };
-    //
-    // for (let i = 0; i < 6; i++) {
-    //     const candidate = new IMECandidate(i, onSelected);
-    //     candidates.push(candidate);
-    //     candidatesEl.appendChild(candidate.getDiv());
-    // }
-    //
-    //
-    // IMEEl.appendChild(candidatesEl);
 
 };
