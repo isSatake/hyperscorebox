@@ -31,12 +31,38 @@ const dict = [
     ["Am", "[ace]"],
     ["V", "[gbd]"], //動的辞書の例
 ];
+
+
+const doremiToABC = {
+    "do": "c",
+    "re": "d",
+    "mi": "e",
+    "fa": "f",
+    "so": "g",
+    "ra": "a",
+    "la": "a",
+    "si": "b"
+};
+
+export const convertDoremiToABC = (input: string) => {
+    let result = input;
+    for(let key of Object.keys(doremiToABC)){
+        const regexp = new RegExp(key, "g");
+        result = result.replace(regexp, doremiToABC[key]);
+    }
+    return result;
+};
+
 const candidateContainers: IMECandidate[] = [];
 
 const search = (input: string): string[] => {
     console.log("search", input);
     if (input === "") return [];
     const candidatesStr = [];
+    if(/(do|re|mi|fa|so|ra|la|si)/.test(input)){
+        //ドレミ変換
+        candidatesStr.push(convertDoremiToABC(input));
+    }
     for (let word of dict) {
         if (new RegExp(".*" + input + ".*").test(word[0])) {
             candidatesStr.push(word[1])
@@ -148,31 +174,6 @@ export const initIME = () => {
         }
     });
 
-    //キャレットが消えたらIMEも消える
-    // const caret = container.querySelector(".cursor") as HTMLElement;
-    // const caretObserver = new MutationObserver(mutations => {
-    //     mutations.forEach(() => {
-    //         if (caret.style.display === "") {
-    //             //キャレット表示時
-    //             //キャレットがコードブロック外なら消える
-    //             //.lines.line.section-n.section-title.abcediting なら表示
-    //             const cursorLine = container.querySelector(".cursor-line");
-    //             for (let c of cursorLine.classList) {
-    //                 if (/section-[0-9]+/.test(c)) {
-    //                     const sectionTitleLine = container.querySelector(`.${c}`);
-    //                     if (sectionTitleLine.classList.contains("abcediting")) {
-    //                         //表示
-    //                         style.display = "";
-    //                         return;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         style.display = "none";
-    //     });
-    // });
-    // caretObserver.observe(caret, {attributes: true});
-
 
     const onSelected = (): void => {
         // refreshCandidates();
@@ -191,20 +192,25 @@ export const initIME = () => {
     let text = "";
     textInput.addEventListener("keydown", e => {
         const {key} = e;
+        console.log("imeevent", "keydown", `keyCode:${e.keyCode} key:${key}`);
         if (style.display === "none") {
-            return false;
+            return;
         }
         //スルーするキー
         if (/(Control|Alt|Meta|Shift|Dead|Delete|Arrow.*)/.test(key)) {
-            return false;
+            return;
         }
         //握りつぶすキー
         if (key === "Tab") {
         } else if (key === "Escape") {
             text = "";
             resetHighlight();
+            imeInput.value = text;
+            abcjs.renderAbc("imesvg", text, {responsive: "resize"});
+            onInput(text);
+            return;
         } else if (key === "Enter") {
-            if (!text) return false;
+            if (!text) return;
             if (highlightIndex > -1) {
                 text = candidates[highlightIndex];
             }
@@ -212,11 +218,11 @@ export const initIME = () => {
             text = "";
             resetHighlight();
         } else if (key === "Backspace") {
-            if (!text) return false;
+            if (!text) return;
             text = text.substr(0, text.length - 1);
             resetHighlight();
         } else if (key === " ") {
-            if (!text) return false;
+            if (!text) return;
             //候補選択
             highlightNext();
         } else {
