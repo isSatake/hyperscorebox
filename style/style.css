@@ -5,3 +5,7 @@ rect {
 .scoreview:hover {
     box-shadow: 0 0 8px gray;
 }
+
+#imeinput:focus {
+    outline: 0;
+}

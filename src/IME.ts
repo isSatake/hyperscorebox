@@ -101,6 +101,28 @@ export const initIME = () => {
     style.boxShadow = "#dedede 0 0 5px 1px";
     style.backgroundColor = "white";
     style.border = "#ababab solid 1.5px";
+    style.display = "none";
+
+    const imeInput = document.createElement("input");
+    imeInput.style.border = "none";
+    imeInput.style.width = "394px";
+    imeInput.style.marginLeft = "1.5px";
+    imeInput.style.height = "30px";
+    imeInput.setAttribute("id", "imeinput");
+    imeInput.addEventListener("click", e => {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+    IMEEl.appendChild(imeInput);
+
+    const svgEl = document.createElement("div");
+    svgEl.style.width = "100%";
+    svgEl.style.background = "#f5f5f5";
+    svgEl.setAttribute("id", "imesvg");
+    IMEEl.appendChild(svgEl);
+
+    const candidatesEl = document.createElement("div");
+    candidatesEl.setAttribute("id", "imecandidates");
 
     //キャレットに追従
     const textInput = document.getElementById('text-input');
@@ -114,54 +136,43 @@ export const initIME = () => {
     const container = document.getElementById("editor");
     container.appendChild(IMEEl);
 
-    //キャレットが消えたらIMEも消える
+    //キャレット表示中にEsc押したらIME表示
     const caret = container.querySelector(".cursor") as HTMLElement;
-    const caretObserver = new MutationObserver(mutations => {
-        mutations.forEach(() => {
-            if (caret.style.display === "") {
-                //キャレット表示時
-                //キャレットがコードブロック外なら消える
-                //.lines.line.section-n.section-title.abcediting なら表示
-                const cursorLine = container.querySelector(".cursor-line");
-                for (let c of cursorLine.classList) {
-                    if (/section-[0-9]+/.test(c)) {
-                        const sectionTitleLine = container.querySelector(`.${c}`);
-                        if (sectionTitleLine.classList.contains("abcediting")) {
-                            //表示
-                            style.display = "";
-                            return;
-                        }
-                    }
-                }
+    document.addEventListener("keydown", e => {
+        if (e.key === "Escape") {
+            if (style.display === "") {
+                style.display = "none";
+            } else if (caret.style.display === "") {
+                style.display = "";
             }
-            style.display = "none";
-        });
+        }
     });
-    caretObserver.observe(caret, {attributes: true});
 
+    //キャレットが消えたらIMEも消える
+    // const caret = container.querySelector(".cursor") as HTMLElement;
+    // const caretObserver = new MutationObserver(mutations => {
+    //     mutations.forEach(() => {
+    //         if (caret.style.display === "") {
+    //             //キャレット表示時
+    //             //キャレットがコードブロック外なら消える
+    //             //.lines.line.section-n.section-title.abcediting なら表示
+    //             const cursorLine = container.querySelector(".cursor-line");
+    //             for (let c of cursorLine.classList) {
+    //                 if (/section-[0-9]+/.test(c)) {
+    //                     const sectionTitleLine = container.querySelector(`.${c}`);
+    //                     if (sectionTitleLine.classList.contains("abcediting")) {
+    //                         //表示
+    //                         style.display = "";
+    //                         return;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         style.display = "none";
+    //     });
+    // });
+    // caretObserver.observe(caret, {attributes: true});
 
-    //Escで表示切替
-
-    const textarea = document.createElement("input");
-    textarea.style.border = "none";
-    textarea.style.width = "95%";
-    textarea.style.height = "30px";
-    textarea.addEventListener("click", e => {
-        e.preventDefault();
-        e.stopPropagation();
-        return true;
-    });
-    IMEEl.appendChild(textarea);
-
-    const svgEl = document.createElement("div");
-    svgEl.style.width = "100%";
-    svgEl.style.background = "#f5f5f5";
-    svgEl.setAttribute("id", "imesvg");
-    IMEEl.appendChild(svgEl);
-
-
-    const candidatesEl = document.createElement("div");
-    candidatesEl.setAttribute("id", "imecandidates");
 
     const onSelected = (): void => {
         // refreshCandidates();
@@ -212,7 +223,7 @@ export const initIME = () => {
             text += key;
             resetHighlight();
         }
-        textarea.value = text;
+        imeInput.value = text;
         abcjs.renderAbc("imesvg", text, {responsive: "resize"});
         onInput(text);
         e.preventDefault();
@@ -221,5 +232,6 @@ export const initIME = () => {
 
     //同じabcブロック内にヘッダ情報があれば取り込む(キーとかlengthとか)(タイトルとかは省く)
     //input内のキャレット移動を可能にする(書き終わってからのリズム訂正やアーティキュレーション挿入が可能になる)
+    //矢印キーで候補操作
 
 };
