@@ -44,14 +44,54 @@ const doremiToABC = {
     "si": "b"
 };
 
+const accidentalToABC = {
+    "sharp": "^",
+    "flat": "_",  //laが被ってる
+    "natural": "="//raが被ってる
+};
+
+const convertAccidentals = (input: string) => {
+    let result = input;
+    for (let accidental of Object.keys(accidentalToABC)) {
+        const accRegExp = new RegExp("[a-g]" + accidental, "g");
+        const matched = result.match(accRegExp);
+        if (!matched) continue;
+        for (let match of matched) {
+            result = result.replace(match, accidentalToABC[accidental] + match.replace(accidental, ""));
+        }
+    }
+    return result;
+};
+
 export const convertDoremiToABC = (input: string) => {
     let result = input;
-    for(let key of Object.keys(doremiToABC)){
+    for (let key of Object.keys(doremiToABC)) {
         const regexp = new RegExp(key, "g");
         result = result.replace(regexp, doremiToABC[key]);
     }
     return result;
 };
+
+const convert = (input: string): string | null => {
+    let convertedStr = "";
+    if (/.*(do|re|mi|fa|so|ra|la|si).*/.test(input)) {
+        //ドレミ
+        console.log("convert", "doremi", input);
+        convertedStr = convertDoremiToABC(input);
+    }
+    const nextStr = convertedStr ? convertedStr : input;
+    if (/.*[a-g](sharp|flat|natural).*/.test(nextStr)) {
+        //臨時記号
+        console.log("convert", "acc", nextStr);
+        convertedStr = convertAccidentals(nextStr);
+    }
+    if (convertedStr) return convertedStr;
+    return null;
+};
+
+//複数の条件で順番に変換したい
+//全く変換しない場合もある
+//変換したかどうかを知りたい 変換してなければnull返すとか
 
 const candidateContainers: IMECandidate[] = [];
 
@@ -59,9 +99,9 @@ const search = (input: string): string[] => {
     console.log("search", input);
     if (input === "") return [];
     const candidatesStr = [];
-    if(/(do|re|mi|fa|so|ra|la|si)/.test(input)){
-        //ドレミ変換
-        candidatesStr.push(convertDoremiToABC(input));
+    const converted = convert(input);
+    if (converted) {
+        candidatesStr.push(converted);
     }
     for (let word of dict) {
         if (new RegExp(".*" + input + ".*").test(word[0])) {
