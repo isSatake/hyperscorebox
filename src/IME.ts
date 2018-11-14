@@ -1,6 +1,11 @@
 import {IMECandidate} from "./IMECandidate";
 import * as abcjs from "abcjs/midi";
 
+type InputEvent = {
+    isComposing: boolean;
+    data: string;
+} & Event
+
 const dict = [
     [
         "cello1-1",
@@ -34,20 +39,37 @@ const dict = [
 
 
 const doremiToABC = {
-    "do": "c",
-    "re": "d",
-    "mi": "e",
-    "fa": "f",
-    "so": "g",
-    "ra": "a",
-    "la": "a",
-    "si": "b"
+    "ド": "c",
+    "レ": "d",
+    "ミ": "e",
+    "ファ": "f",
+    "ソ": "g",
+    "ラ": "a",
+    "シ": "b"
 };
 
 const accidentalToABC = {
-    "sharp": "^",
-    "flat": "_",  //laが被ってる
-    "natural": "="//raが被ってる
+    "♯": "^",
+    "＃": "^",
+    "#": "^",
+    "♭": "_",
+    "♮": "="
+};
+
+const getRegExp = (arr: string[]): RegExp => {
+    const length = arr.length;
+    let str = "";
+    for (let i in arr) {
+        if (i === "0") {
+            str += "(";
+        }
+        str += arr[i];
+        if (i === (length - 1).toString()) {
+            str += ")";
+            return new RegExp(str);
+        }
+        str += "|";
+    }
 };
 
 const convertAccidentals = (input: string) => {
@@ -74,13 +96,13 @@ export const convertDoremiToABC = (input: string) => {
 
 const convert = (input: string): string | null => {
     let convertedStr = "";
-    if (/.*(do|re|mi|fa|so|ra|la|si).*/.test(input)) {
+    if (getRegExp(Object.keys(doremiToABC)).test(input)) {
         //ドレミ
         console.log("convert", "doremi", input);
         convertedStr = convertDoremiToABC(input);
     }
     const nextStr = convertedStr ? convertedStr : input;
-    if (/.*[a-g](sharp|flat|natural).*/.test(nextStr)) {
+    if (getRegExp(Object.keys(accidentalToABC)).test(nextStr)) {
         //臨時記号
         console.log("convert", "acc", nextStr);
         convertedStr = convertAccidentals(nextStr);
@@ -89,22 +111,20 @@ const convert = (input: string): string | null => {
     return null;
 };
 
-//複数の条件で順番に変換したい
-//全く変換しない場合もある
-//変換したかどうかを知りたい 変換してなければnull返すとか
-
 const candidateContainers: IMECandidate[] = [];
 
 const search = (input: string): string[] => {
     console.log("search", input);
     if (input === "") return [];
     const candidatesStr = [];
-    const converted = convert(input);
+    let searchStr = input;
+    const converted = convert(searchStr);
     if (converted) {
+        searchStr = converted;
         candidatesStr.push(converted);
     }
     for (let word of dict) {
-        if (new RegExp(".*" + input + ".*").test(word[0])) {
+        if (new RegExp(".*" + searchStr + ".*").test(word[0])) {
             candidatesStr.push(word[1])
         }
     }
@@ -191,7 +211,7 @@ export const initIME = () => {
     candidatesEl.setAttribute("id", "imecandidates");
 
     //キャレットに追従
-    const textInput = document.getElementById('text-input');
+    const textInput = document.getElementById('text-input') as HTMLInputElement;
     const textInputObserver = new MutationObserver(mutations => {
         mutations.forEach(() => {
             style.top = `${textInput.offsetTop + 20}px`;
@@ -228,8 +248,21 @@ export const initIME = () => {
 
     IMEEl.appendChild(candidatesEl);
 
-
     let text = "";
+    let isComposeCompleted = false;
+    textInput.addEventListener("input", (e: InputEvent) => {
+        if (isComposeCompleted && e.isComposing) {
+            text += e.data;
+            imeInput.value = text;
+            abcjs.renderAbc("imesvg", text, {responsive: "resize"});
+            onInput(text);
+            textInput.value = "";
+            isComposeCompleted = false;
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }, true);
+
     textInput.addEventListener("keydown", e => {
         const {key} = e;
         console.log("imeevent", "keydown", `keyCode:${e.keyCode} key:${key}`);
@@ -237,10 +270,9 @@ export const initIME = () => {
             return;
         }
         //スルーするキー
-        if (/(Control|Alt|Meta|Shift|Dead|Delete|Arrow.*)/.test(key)) {
+        if (/(Control|Alt|Meta|Shift|Dead|Delete)/.test(key)) {
             return;
         }
-        //握りつぶすキー
         if (key === "Tab") {
         } else if (key === "Escape") {
             text = "";
@@ -250,13 +282,19 @@ export const initIME = () => {
             onInput(text);
             return;
         } else if (key === "Enter") {
-            if (!text) return;
-            if (highlightIndex > -1) {
-                text = candidates[highlightIndex];
+            if (e.keyCode === 229) {
+                console.log("oninput", "229");
+                isComposeCompleted = true;
+            } else {
+                if (!text) return;
+                if (highlightIndex > -1) {
+                    text = candidates[highlightIndex];
+                }
+                document.execCommand("insertText", null, text);
+                text = "";
+                resetHighlight();
             }
-            document.execCommand("insertText", null, text);
-            text = "";
-            resetHighlight();
+        } else if (e.keyCode === 229) {
         } else if (key === "Backspace") {
             if (!text) return;
             text = text.substr(0, text.length - 1);
@@ -265,6 +303,20 @@ export const initIME = () => {
             if (!text) return;
             //候補選択
             highlightNext();
+        } else if (key === "ArrowUp") {
+            if (text.substr(-1) === ",") {
+                text = text.replace(/,$/, "");
+            } else {
+                text += "'";
+            }
+            resetHighlight();
+        } else if (key === "ArrowDown") {
+            if (text.substr(-1) === "'") {
+                text = text.replace(/'$/, "");
+            } else {
+                text += ",";
+            }
+            resetHighlight();
         } else {
             text += key;
             resetHighlight();
@@ -276,8 +328,10 @@ export const initIME = () => {
         e.stopPropagation();
     });
 
+    //[]は違うイベントを補足しているらしい
     //同じabcブロック内にヘッダ情報があれば取り込む(キーとかlengthとか)(タイトルとかは省く)
     //input内のキャレット移動を可能にする(書き終わってからのリズム訂正やアーティキュレーション挿入が可能になる)
     //矢印キーで候補操作
+
 
 };
