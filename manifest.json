@@ -10,7 +10,7 @@
   "permissions": [
     "activeTab",
     "tabs",
-    "*://*/*"
+    "https://scrapbox.io/*"
   ],
   "content_scripts": [
     {
