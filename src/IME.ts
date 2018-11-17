@@ -190,10 +190,12 @@ export const initIME = () => {
     style.display = "none";
 
     const imeInput = document.createElement("input");
+    imeInput.style.position = "absolute";
     imeInput.style.border = "none";
     imeInput.style.width = "394px";
-    imeInput.style.marginLeft = "1.5px";
     imeInput.style.height = "30px";
+    imeInput.style.top = "-29px";
+    imeInput.style.backgroundColor = "transparent";
     imeInput.setAttribute("id", "imeinput");
     imeInput.addEventListener("click", e => {
         e.preventDefault();
@@ -248,12 +250,23 @@ export const initIME = () => {
 
     IMEEl.appendChild(candidatesEl);
 
+    const updateTextInputOffset = (input: string) => {
+        invisibleSpan.textContent = input;
+        textInput.style.marginLeft = `${invisibleSpan.offsetWidth * 1.1}px`;
+        caret.style.marginLeft = `${invisibleSpan.offsetWidth * 1.1 + 2}px`;
+    }
+
+    const invisibleSpan = document.createElement("span");
+    document.body.appendChild(invisibleSpan);
+    invisibleSpan.style.visibility = "hidden";
     let text = "";
     let isComposeCompleted = false;
     textInput.addEventListener("input", (e: InputEvent) => {
         if (isComposeCompleted && e.isComposing) {
             text += e.data;
             imeInput.value = text;
+            //幅測定用spanを生成
+            updateTextInputOffset(text);
             abcjs.renderAbc("imesvg", text, {responsive: "resize"});
             onInput(text);
             textInput.value = "";
@@ -292,12 +305,17 @@ export const initIME = () => {
                 }
                 document.execCommand("insertText", null, text);
                 text = "";
+                invisibleSpan.textContent = "";
+                textInput.style.marginLeft = "";
+                caret.style.marginLeft = "";
                 resetHighlight();
             }
         } else if (e.keyCode === 229) {
         } else if (key === "Backspace") {
             if (!text) return;
             text = text.substr(0, text.length - 1);
+            //invisibleSpanも更新
+            updateTextInputOffset(text);
             resetHighlight();
         } else if (key === " ") {
             if (!text) return;

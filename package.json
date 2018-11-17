@@ -4,7 +4,7 @@
   "description": "hyperscore Chrome Extension",
   "main": "index.js",
   "scripts": {
-    "build": "npm run clean && npm i && npm run copy && tsc && npm run browserify",
+    "build": "npm run clean && npm run copy && tsc && npm run browserify",
     "clean": "cd dist/ && ls | xargs rm",
     "copy": "cp ./manifest.json ./dist && cp ./style/style.css ./dist && cp ./style/abcjs-midi.css ./dist",
     "browserify": "browserify ./dist/content.js -o ./dist/content.js"
