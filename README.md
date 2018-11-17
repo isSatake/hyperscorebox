@@ -1,6 +1,8 @@
 # hyperscorebox
 <a href="https://scrapbox.io/product">Scrapbox</a>上で自在に楽譜を書けるChrome拡張
 
+<a href="https://chrome.google.com/webstore/detail/hyperscorebox/cjlhoobllhkpjjomlijlfdblgifcdmoh">インストール</a>
+
 <a href="https://scrapbox.io/satakebox/hyperscorebox">つかいかた</a>
 
 <img src="https://i.gyazo.com/2b81c8ae28acab054b68d8146c2fecef.gif">
