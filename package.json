@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm run clean && npm run copy && tsc && npm run browserify",
     "clean": "cd dist/ && ls | xargs rm",
-    "copy": "cp ./manifest.json ./dist && cp ./style/style.css ./dist && cp ./style/abcjs-midi.css ./dist",
+    "copy": "cp ./manifest.json ./dist && cp ./style/style.css ./dist && cp ./style/abcjs-midi.css ./dist && cp ./icons/* ./dist",
     "browserify": "browserify ./dist/content.js -o ./dist/content.js"
   },
   "author": "stkay <stkayy@gmail.com>",
