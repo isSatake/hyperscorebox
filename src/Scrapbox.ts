@@ -54,7 +54,7 @@ export const getABCBlocks = (elementIDs: string[]): ABCBlock[] => {
             titleElementID: elementID,
             titleElement: titleElement,
             blockHeight: codeBlockHeight,
-            abc: codeBlockStr.replace(/(^\nabc\n |abcSheet Music.*\n)/, ""),
+            abc: codeBlockStr.replace(/(^\n.*\n)/, ""), //コードブロックタイトルやテロメアにhoverすると余計な文字が入るので排除
             isEditing: isEditing
         });
     }
