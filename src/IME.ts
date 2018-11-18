@@ -322,16 +322,17 @@ export const initIME = () => {
             //候補選択
             highlightNext();
         } else if (key === "ArrowUp") {
+            //直前が音符じゃないと無効
             if (text.substr(-1) === ",") {
                 text = text.replace(/,$/, "");
-            } else {
+            } else if(/([a-g]|[A-G]|')/.test(text.substr(-1))) {
                 text += "'";
             }
             resetHighlight();
         } else if (key === "ArrowDown") {
             if (text.substr(-1) === "'") {
                 text = text.replace(/'$/, "");
-            } else {
+            } else if(/([a-g]|[A-G]|,)/.test(text.substr(-1))) {
                 text += ",";
             }
             resetHighlight();
