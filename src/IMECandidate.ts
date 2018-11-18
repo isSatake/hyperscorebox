@@ -1,5 +1,6 @@
 import * as abcjs from "abcjs/midi";
 
+//楽譜IMEの候補
 export class IMECandidate {
     private readonly index: number;
     private readonly msg: string;

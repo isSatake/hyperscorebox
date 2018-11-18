@@ -1,5 +1,7 @@
 import {ABCBlock, Line} from "./Types";
 
+//Scrapboxページのデータ取得系関数
+
 export const getPageLines = async () => {
     const res = await fetch(`https://scrapbox.io/api/pages${location.pathname}`);
     const {lines} = await res.json();
@@ -37,9 +39,15 @@ export const getABCBlocks = (elementIDs: string[]): ABCBlock[] => {
                     codeBlockHeight += blockDiv.clientHeight;
                 }
             }
-            if (titleElement.classList.contains("abcediting")) {
+            if (!isEditing && blockDiv.classList.contains("cursor-line")) {
                 isEditing = true;
             }
+
+        }
+
+        //キャレットが表示されていると.abceditingが.cursor-lineで上書きされてしまうのでこのような条件にしている
+        if (!isEditing && (titleElement.classList.contains("abcediting") || titleElement.classList.contains("cursor-line"))) {
+            isEditing = true;
         }
 
         blocks.push({

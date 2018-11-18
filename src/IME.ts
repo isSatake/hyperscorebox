@@ -6,6 +6,7 @@ type InputEvent = {
     data: string;
 } & Event
 
+//辞書はこれからちゃんと作る
 const dict = [
     [
         "cello1-1",
@@ -33,8 +34,7 @@ const dict = [
     ],
     ["C", "[ceg]"],
     ["Cm", "[c_eg]"],
-    ["Am", "[ace]"],
-    ["V", "[gbd]"], //動的辞書の例
+    ["Am", "[ace]"]
 ];
 
 

@@ -1,4 +1,4 @@
-import {ABCPage} from "./ABCPage";
+import {Page} from "./Page";
 import {getABCBlocks, getABCElIDs, getPageLines} from "./Scrapbox";
 import {ABCBlock} from "./Types";
 import {initIME} from "./IME";
@@ -7,9 +7,9 @@ const MSG = "hyperscorebox";
 
 console.log(MSG, "hello from hyperscorebox");
 
-setTimeout(initIME, 3000)
+setTimeout(initIME, 2000);
 
-const page = new ABCPage();
+const page = new Page();
 const update = async () => {
     const ABCIDs = getABCElIDs(await getPageLines());
     if (ABCIDs.length < 1) {

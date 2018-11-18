@@ -2,7 +2,9 @@ import {ABCBlock, ScoreElement} from "./Types";
 import {generateInlineStyle} from "./Scrapbox";
 import {parseLink, render} from "./ABC";
 
-export class ABCPage {
+//Scrapboxページ
+//ページ内に書かれた楽譜情報を管理する
+export class Page {
     private scoreElements: ScoreElement[] = [];
 
     private pushScoreElement = (block: ABCBlock): void => {

@@ -18,7 +18,7 @@ $ npm run build
 ### install
 1. 上記のビルド作業を行う
 2. GoogleChromeで `chrome://extensions` を開く
-3. 画面右上の `デベロッパーモード` と書かれたトグルスイッチをONにする
+3. 画面右上の `デベロッパーモード` と書かれた トグルスイッチをONにする
 4. `パッケージ化されていない拡張機能を読み込む` をクリック
 5. `hyperscorebox/dist` を選択
 
