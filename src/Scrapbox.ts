@@ -35,7 +35,8 @@ export const getABCBlocks = (elementIDs: string[]): ABCBlock[] => {
             for (let child of blockDiv.children) {
                 if (child.classList.contains("code-block") === true) {
                     codeBlockDivs.push(blockDiv);
-                    codeBlockStr += `\n${blockDiv.textContent.replace(/^\t+/, "")}`;
+                    const text = blockDiv.querySelector(".code-block").textContent;
+                    codeBlockStr += `\n${text.replace(/^\t+/, "")}`;
                     codeBlockHeight += blockDiv.clientHeight;
                 }
             }
@@ -54,7 +55,7 @@ export const getABCBlocks = (elementIDs: string[]): ABCBlock[] => {
             titleElementID: elementID,
             titleElement: titleElement,
             blockHeight: codeBlockHeight,
-            abc: codeBlockStr.replace(/(^\n.*\n)/, ""), //コードブロックタイトルやテロメアにhoverすると余計な文字が入るので排除
+            abc: codeBlockStr.replace(/(^\n.*\n)/, ""), //コードブロックタイトルにhoverすると余計な文字が入るので排除
             isEditing: isEditing
         });
     }
