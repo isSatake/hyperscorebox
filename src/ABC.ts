@@ -1,7 +1,6 @@
 import * as abcjs from "abcjs/midi";
 import {ABCLink} from "./Types";
 
-
 const SCRAPBOXURL = `https://scrapbox.io/${location.pathname.split("/")[1]}/`;
 const LINK_HIGHLIGHT_COLOR = "#3965ff";
 const inputEl = document.getElementById("abcinput");
@@ -91,7 +90,7 @@ export const render = (abc: string, links: ABCLink[], staffWidth: number, svgDiv
         for (let staff of line.staff) {
             for (let voice of staff.voices) {
                 for (let element of voice) {
-                    if (!element.startChar) continue;
+                    if (element.startChar === undefined) continue;
                     if (getLink(links, Number(element.startChar))) {
                         element.abselem.highlight(undefined, LINK_HIGHLIGHT_COLOR);
                     }
