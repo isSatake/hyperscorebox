@@ -1,7 +1,8 @@
 import * as abcjs from "abcjs/midi";
 import {ABCLink} from "./Types";
 
-const SCRAPBOXURL = "https://scrapbox.io/stk-study-music-theory/";
+
+const SCRAPBOXURL = `https://scrapbox.io/${location.pathname.split("/")[1]}/`;
 const LINK_HIGHLIGHT_COLOR = "#3965ff";
 const inputEl = document.getElementById("abcinput");
 let shifted: boolean = false;
@@ -53,7 +54,8 @@ const generateClickListener = (links: ABCLink[], parentSVGElID: string) => {
         const pageTitle: string | null = getLink(links, clickedNoteStartChar);
         if (pageTitle) {
             console.log("abcClickListener", "Linked note is clicked.", "startChar:", clickedNoteStartChar, "destination:", pageTitle);
-            window.location.href = SCRAPBOXURL + pageTitle;
+
+            location.href = SCRAPBOXURL + pageTitle;
             return
         }
 
