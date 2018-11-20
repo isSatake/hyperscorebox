@@ -11,11 +11,16 @@ setTimeout(initIME, 2000);
 
 const page = new Page();
 const update = async () => {
-    const ABCIDs = getABCElIDs(await getPageLines());
-    if (ABCIDs.length < 1) {
-        return;
-    }
-    const ABCBlocks: ABCBlock[] = getABCBlocks(ABCIDs);
+    //コードブロックを含むIDだけ渡すのは間違ってる
+    //すべての行を走査しないといけない
+    //mutationObserverを使って、更新されたら走査する
+    // const ABCIDs = getABCElIDs(await getPageLines());
+    // if (ABCIDs.length < 1) {
+    //     return;
+    // }
+    //lineを取る
+    //ABCBlockを抽出する
+    const ABCBlocks: ABCBlock[] = getABCBlocks();
     console.log(MSG, "update", "ABCBlocks", ABCBlocks);
     page.update(ABCBlocks);
 };
