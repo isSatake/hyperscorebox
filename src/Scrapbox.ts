@@ -20,11 +20,6 @@ export const getABCElIDs = (lines: Line[]): string[] => {
 
 export const getABCBlocks = (): ABCBlock[] => {
     const blocks: ABCBlock[] = [];
-
-    // const codeBlockDivs = [];
-    // let codeBlockStr = "";
-    // let codeBlockHeight = 0;
-    // let isEditing = false;
     let tempBlock: ABCBlock = null; //連続したcode-block毎に組み立てる
     let hasCodeBlock = false; //1個前のlineがcode-blockならtrue
 
@@ -34,7 +29,7 @@ export const getABCBlocks = (): ABCBlock[] => {
         const line = lines[i];
 
         //行の子要素
-        const span = line.querySelector("span");
+        const span = line.querySelector("span:not(.date-label)");
         const codeBlockEl = span.classList.contains("code-block") ? span : null;
         if (codeBlockEl) { //コードブロックか？
             if (tempBlock && !hasCodeBlock) { //コードブロックが途切れたらblocksにpush
@@ -80,5 +75,5 @@ export const getABCBlocks = (): ABCBlock[] => {
 export const generateInlineStyle = (isEditing: boolean, blockHeight: number, offsetLeft: number, width: number): string => {
     const top = isEditing ? -(28 + blockHeight) : 0;
     const shadow = isEditing ? "box-shadow: 0 0 8px gray;" : "";
-    return `position: absolute; width: ${width}px; background: white; z-index: 100; top: ${top}px; left: ${offsetLeft}px; height: ${blockHeight}px; ${shadow}`
+    return `position: absolute; width: ${width + 0.5}px; background: white; z-index: 100; top: ${top}px; left: ${offsetLeft - 0.5}px; height: ${blockHeight}px; ${shadow}`
 };
