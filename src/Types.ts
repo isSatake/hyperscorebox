@@ -13,6 +13,8 @@ export type ABCBlock = {
     titleElementID: string
     titleElement: HTMLElement
     blockHeight: number
+    offsetLeft: number
+    width: number
     abc: string
     isEditing: boolean
 }

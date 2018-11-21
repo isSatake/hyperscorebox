@@ -8,11 +8,11 @@ export class Page {
     private scoreElements: ScoreElement[] = [];
 
     private pushScoreElement = (block: ABCBlock): void => {
-        const {titleElementID, titleElement, blockHeight, abc, isEditing} = block;
+        const {titleElementID, titleElement, blockHeight, offsetLeft, width, abc, isEditing} = block;
         const scoreDiv = document.createElement("div");
         scoreDiv.classList.add("scoreview");
         scoreDiv.setAttribute("id", `ABC${titleElementID}`);
-        scoreDiv.setAttribute("style", generateInlineStyle(isEditing, blockHeight));
+        scoreDiv.setAttribute("style", generateInlineStyle(isEditing, blockHeight, offsetLeft, width));
         scoreDiv.addEventListener("mousedown", e => {
             e.stopPropagation();
             const {classList} = titleElement;
@@ -52,12 +52,12 @@ export class Page {
     };
 
     private updateElement = (block: ABCBlock): boolean => {
-        const {abc, isEditing, titleElementID, blockHeight, titleElement} = block;
+        const {abc, isEditing, titleElementID, blockHeight, offsetLeft, width, titleElement} = block;
         const scoreElement = this.getElement(titleElementID);
         if (!scoreElement) {
             return false;
         }
-        scoreElement.element.setAttribute("style", generateInlineStyle(isEditing, blockHeight));
+        scoreElement.element.setAttribute("style", generateInlineStyle(isEditing, blockHeight, offsetLeft, width));
         render(abc, parseLink(abc), titleElement.clientWidth - 30, `SVG${titleElementID}`, `PLAYER${titleElementID}`);
         return true;
     };

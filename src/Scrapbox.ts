@@ -37,13 +37,15 @@ export const getABCBlocks = (): ABCBlock[] => {
         const span = line.querySelector("span");
         const codeBlockEl = span.classList.contains("code-block") ? span : null;
         if (codeBlockEl) { //コードブロックか？
-            if (tempBlock && !hasCodeBlock) { //コードブロックが途切れてたらblocksにpush
+            if (tempBlock && !hasCodeBlock) { //コードブロックが途切れたらblocksにpush
                 blocks.push(tempBlock);
                 tempBlock = null;
             }
 
             const abcText = `\n${codeBlockEl.textContent.replace(/^\t+/, "")}`;
             const blockHeight = codeBlockEl.clientHeight;
+            const left = codeBlockEl.querySelector(".indent-mark").clientWidth;
+            const width = codeBlockEl.querySelector(".indent").clientWidth;
             if (tempBlock) { //tempBlockが存在したら追加系の操作のみ行う
                 tempBlock.abc += abcText;
                 tempBlock.blockHeight += blockHeight;
@@ -53,6 +55,8 @@ export const getABCBlocks = (): ABCBlock[] => {
                     titleElementID: line.id,
                     abc: "", //コードブロック1行目は無視していい
                     blockHeight: blockHeight,
+                    offsetLeft: left,
+                    width: width,
                     isEditing: false
                 }
             }
@@ -70,49 +74,11 @@ export const getABCBlocks = (): ABCBlock[] => {
         }
     }
 
-    // const className = titleElement.className;
-    // const classList = className.split(" ");
-    // const sectionNumClass = classList.find(e => e.match(/section-\d+/) !== null);
-    // const blockDivs = document.getElementsByClassName(sectionNumClass);
-    // //連続したコードブロックを1まとまりとする
-    // //途切れたらblocks.pushする
-    //
-    // const codeBlockDivs = [];
-    // let codeBlockStr = "";
-    // let codeBlockHeight = 0;
-    // let isEditing = false;
-    // for (let blockDiv of blockDivs) {
-    //     for (let child of blockDiv.children) {
-    //         if (child.classList.contains("code-block") === true) {
-    //             codeBlockDivs.push(blockDiv);
-    //             const text = blockDiv.querySelector(".code-block").textContent;
-    //             codeBlockStr += `\n${text.replace(/^\t+/, "")}`;
-    //             codeBlockHeight += blockDiv.clientHeight;
-    //         }
-    //     }
-    //     if (!isEditing && blockDiv.classList.contains("cursor-line")) {
-    //         isEditing = true;
-    //     }
-    //
-    // }
-
-    //キャレットが表示されていると.abceditingが.cursor-lineで上書きされてしまうのでこのような条件にしている
-    // if (!isEditing && (titleElement.classList.contains("abcediting") || titleElement.classList.contains("cursor-line"))) {
-    //     isEditing = true;
-    // }
-
-    // blocks.push({
-    //     titleElementID: elementID,
-    //     titleElement: titleElement,
-    //     blockHeight: codeBlockHeight,
-    //     abc: codeBlockStr.replace(/(^\n.*\n)/, ""), //コードブロックタイトルにhoverすると余計な文字が入るので排除
-    //     isEditing: isEditing
-    // });
     return blocks;
 };
 
-export const generateInlineStyle = (isEditing: boolean, abcBlockHeight: number): string => {
-    const top = isEditing ? -(28 + abcBlockHeight) : 0;
+export const generateInlineStyle = (isEditing: boolean, blockHeight: number, offsetLeft: number, width: number): string => {
+    const top = isEditing ? -(28 + blockHeight) : 0;
     const shadow = isEditing ? "box-shadow: 0 0 8px gray;" : "";
-    return `position: absolute; width: 100%; background: white; z-index: 100; top: ${top}px; height: ${abcBlockHeight}px; ${shadow}`
+    return `position: absolute; width: ${width}px; background: white; z-index: 100; top: ${top}px; left: ${offsetLeft}px; height: ${blockHeight}px; ${shadow}`
 };
