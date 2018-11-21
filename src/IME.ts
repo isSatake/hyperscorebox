@@ -227,11 +227,15 @@ export const initIME = () => {
     //キャレット表示中にEsc押したらIME表示
     const caret = container.querySelector(".cursor") as HTMLElement;
     document.addEventListener("keydown", e => {
+        //キャレットはコードブロック内にあるか？
+        const codeBlock = container.querySelector(".cursor-line").querySelector("span.code-block");
         if (e.key === "Escape") {
-            if (style.display === "") {
-                style.display = "none";
-            } else if (caret.style.display === "") {
-                style.display = "";
+            if (codeBlock) {
+                if (style.display === "") {
+                    style.display = "none";
+                } else if (caret.style.display === "") {
+                    style.display = "";
+                }
             }
         }
     });
@@ -325,14 +329,14 @@ export const initIME = () => {
             //直前が音符じゃないと無効
             if (text.substr(-1) === ",") {
                 text = text.replace(/,$/, "");
-            } else if(/([a-g]|[A-G]|')/.test(text.substr(-1))) {
+            } else if (/([a-g]|[A-G]|')/.test(text.substr(-1))) {
                 text += "'";
             }
             resetHighlight();
         } else if (key === "ArrowDown") {
             if (text.substr(-1) === "'") {
                 text = text.replace(/'$/, "");
-            } else if(/([a-g]|[A-G]|,)/.test(text.substr(-1))) {
+            } else if (/([a-g]|[A-G]|,)/.test(text.substr(-1))) {
                 text += ",";
             }
             resetHighlight();

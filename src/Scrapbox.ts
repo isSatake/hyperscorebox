@@ -45,7 +45,6 @@ export const getABCBlocks = (): ABCBlock[] => {
                 tempBlock.abc += abcText;
                 tempBlock.blockHeight += blockHeight;
             } else { //なければすべてのプロパティを一度に追加する
-                console.log(abcText);
                 if(abcText === "\nabc") {
                     tempBlock = {
                         titleElement: line as HTMLElement,
