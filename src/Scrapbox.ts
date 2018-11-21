@@ -45,14 +45,17 @@ export const getABCBlocks = (): ABCBlock[] => {
                 tempBlock.abc += abcText;
                 tempBlock.blockHeight += blockHeight;
             } else { //なければすべてのプロパティを一度に追加する
-                tempBlock = {
-                    titleElement: line as HTMLElement,
-                    titleElementID: line.id,
-                    abc: "", //コードブロック1行目は無視していい
-                    blockHeight: blockHeight,
-                    offsetLeft: left,
-                    width: width,
-                    isEditing: false
+                console.log(abcText);
+                if(abcText === "\nabc") {
+                    tempBlock = {
+                        titleElement: line as HTMLElement,
+                        titleElementID: line.id,
+                        abc: "", //コードブロック1行目は無視していい
+                        blockHeight: blockHeight,
+                        offsetLeft: left,
+                        width: width,
+                        isEditing: false
+                    }
                 }
             }
 
