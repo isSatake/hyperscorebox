@@ -2,22 +2,6 @@ import {ABCBlock, Line} from "./Types";
 
 //Scrapboxページのデータ取得系関数
 
-export const getPageLines = async () => {
-    const res = await fetch(`https://scrapbox.io/api/pages${location.pathname}`);
-    const {lines} = await res.json();
-    return lines;
-};
-
-export const getABCElIDs = (lines: Line[]): string[] => {
-    const IDs = [];
-    for (let line of lines) {
-        if (line.text === "code:abc") {
-            IDs.push(`L${line.id}`);
-        }
-    }
-    return IDs;
-};
-
 export const getABCBlocks = (): ABCBlock[] => {
     const blocks: ABCBlock[] = [];
     let tempBlock: ABCBlock = null; //連続したcode-block毎に組み立てる
@@ -45,7 +29,7 @@ export const getABCBlocks = (): ABCBlock[] => {
                 tempBlock.abc += abcText;
                 tempBlock.blockHeight += blockHeight;
             } else { //なければすべてのプロパティを一度に追加する
-                if(abcText === "\nabc") {
+                if(/(code:|)(.*\.|)abc/.test(abcText)) {
                     tempBlock = {
                         titleElement: line as HTMLElement,
                         titleElementID: line.id,

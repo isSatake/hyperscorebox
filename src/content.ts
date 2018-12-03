@@ -1,5 +1,5 @@
 import {Page} from "./Page";
-import {getABCBlocks, getABCElIDs, getPageLines} from "./Scrapbox";
+import {getABCBlocks} from "./Scrapbox";
 import {ABCBlock} from "./Types";
 import {initIME} from "./IME";
 
