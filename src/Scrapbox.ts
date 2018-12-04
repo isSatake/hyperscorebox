@@ -1,4 +1,5 @@
 import {ABCBlock, ExternalABC, ScrapboxLine} from "./Types";
+import * as abcjs from "abcjs/midi";
 
 const SCRAPBOX_PROJECT_NAME = location.pathname.split("/")[1];
 export const SCRAPBOX_URL = `https://scrapbox.io/${SCRAPBOX_PROJECT_NAME}/`;
@@ -51,7 +52,8 @@ export const getABCBlocks = async (): Promise<ABCBlock[]> => {
 
             //インポート記法
             if (tempBlock && !importedABC && /%import:.*/.test(abcText)) {
-                const pageTitle = abcText.substr(9);
+                const matchedRange = abcText.match(/\[[0-9]+,[0-9]+]$/);
+                const pageTitle = abcText.replace(/%import:/, "").replace(/\[[0-9]+,[0-9]+]$/, "");
                 console.log("import external abc", pageTitle);
                 for (let externalABC of externalABCs) {
                     if (externalABC.pageTitle === pageTitle) {
