@@ -19,7 +19,7 @@ const getCodeBlock = async (pageTitle: string, codeTitle: string): Promise<strin
 const getFirstCodeBlockTitle = async (pageTitle: string): Promise<string> => {
     for (let line of await getPageLines(pageTitle)) {
         if (/code:.*\.abc/.test(line.text)) {
-            return line.text.substr(5);
+            return line.text.replace(/^(\t|\s)+/, "").substr(5);
         }
     }
 };
