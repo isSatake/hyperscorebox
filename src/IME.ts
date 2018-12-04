@@ -1,5 +1,6 @@
 import {IMECandidate} from "./IMECandidate";
 import * as abcjs from "abcjs/midi";
+import {registerTextInputMutationObserver} from "./Scrapbox";
 
 type InputEvent = {
     isComposing: boolean;
@@ -213,14 +214,10 @@ export const initIME = () => {
     candidatesEl.setAttribute("id", "imecandidates");
 
     //キャレットに追従
-    const textInput = document.getElementById('text-input') as HTMLInputElement;
-    const textInputObserver = new MutationObserver(mutations => {
-        mutations.forEach(() => {
-            style.top = `${textInput.offsetTop + 20}px`;
-            style.left = textInput.style.left;
-        });
+    registerTextInputMutationObserver(textInput => {
+        style.top = `${textInput.offsetTop + 20}px`;
+        style.left = textInput.style.left;
     });
-    textInputObserver.observe(textInput, {attributes: true});
     const container = document.getElementById("editor");
     container.appendChild(IMEEl);
 
@@ -254,11 +251,13 @@ export const initIME = () => {
 
     IMEEl.appendChild(candidatesEl);
 
+
+    const textInput = document.getElementById('text-input') as HTMLInputElement;
     const updateTextInputOffset = (input: string) => {
         invisibleSpan.textContent = input;
         textInput.style.marginLeft = `${invisibleSpan.offsetWidth * 1.1}px`;
         caret.style.marginLeft = `${invisibleSpan.offsetWidth * 1.1 + 2}px`;
-    }
+    };
 
     const invisibleSpan = document.createElement("span");
     document.body.appendChild(invisibleSpan);
@@ -351,7 +350,7 @@ export const initIME = () => {
         e.stopPropagation();
     });
 
-    //[]は違うイベントを補足しているらしい
+    //[]は違うイベントを捕捉しているらしい
     //同じabcブロック内にヘッダ情報があれば取り込む(キーとかlengthとか)(タイトルとかは省く)
     //input内のキャレット移動を可能にする(書き終わってからのリズム訂正やアーティキュレーション挿入が可能になる)
     //矢印キーで候補操作
