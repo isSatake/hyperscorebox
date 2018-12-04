@@ -54,7 +54,7 @@ export class Page {
     private updateElement = (block: ABCBlock): boolean => {
         const {abc, isEditing, titleElementID, blockHeight, offsetLeft, width, titleElement} = block;
         const scoreElement = this.getElement(titleElementID);
-        if (!scoreElement) {
+        if (!scoreElement) { //コードブロックが無いとき
             return false;
         }
         scoreElement.element.setAttribute("style", generateInlineStyle(isEditing, blockHeight, offsetLeft, width));

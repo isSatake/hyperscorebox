@@ -1,11 +1,7 @@
-import {ABCBlock} from "./Types";
+import {ABCBlock, ExternalABC, ScrapboxLine} from "./Types";
 
 const SCRAPBOX_PROJECT_NAME = location.pathname.split("/")[1];
 export const SCRAPBOX_URL = `https://scrapbox.io/${SCRAPBOX_PROJECT_NAME}/`;
-
-type ScrapboxLine = {
-    text: string
-}
 
 //Scrapboxページのデータ取得系関数
 
@@ -28,11 +24,13 @@ const getFirstCodeBlockTitle = async (pageTitle: string): Promise<string> => {
     }
 };
 
+const externalABCs: ExternalABC[] = [];
+
 export const getABCBlocks = async (): Promise<ABCBlock[]> => {
     const blocks: ABCBlock[] = [];
     let tempBlock: ABCBlock = null; //連続したcode-block毎に組み立てる
     let hasCodeBlock = false; //1個前のlineがcode-blockならtrue
-    let externalABC = "";
+    let importedABC = "";
 
     //Scrapboxの行
     const lines = document.querySelector(".lines").children;
@@ -46,24 +44,32 @@ export const getABCBlocks = async (): Promise<ABCBlock[]> => {
             if (tempBlock && !hasCodeBlock) { //コードブロックが途切れたらblocksにpush
                 blocks.push(tempBlock);
                 tempBlock = null;
-                externalABC = "";
+                importedABC = "";
             }
 
             const abcText = `\n${codeBlockEl.textContent.replace(/^\t+/, "")}`;
 
             //インポート記法
-            if (!externalABC && tempBlock && /%import:.*/.test(abcText)) {
-                console.log("import!");
-                const reference = abcText.substr(9);
-                externalABC = await getCodeBlock(reference, await getFirstCodeBlockTitle(reference));
+            if (tempBlock && !importedABC && /%import:.*/.test(abcText)) {
+                const pageTitle = abcText.substr(9);
+                console.log("import external abc", pageTitle);
+                for (let externalABC of externalABCs) {
+                    if (externalABC.pageTitle === pageTitle) {
+                        importedABC = externalABC.abc;
+                    }
+                }
+                if (!importedABC) {
+                    importedABC = await getCodeBlock(pageTitle, await getFirstCodeBlockTitle(pageTitle));
+                    externalABCs.push({pageTitle: pageTitle, abc: importedABC});
+                }
             }
 
             const blockHeight = codeBlockEl.clientHeight;
             const left = codeBlockEl.querySelector(".indent-mark").clientWidth;
             const width = codeBlockEl.querySelector(".indent").clientWidth;
             if (tempBlock) { //tempBlockが存在したら追加系の操作のみ行う
-                if (externalABC && !tempBlock.abc) {
-                    tempBlock.abc = externalABC;
+                if (importedABC && !tempBlock.abc) {
+                    tempBlock.abc = importedABC;
                 } else {
                     tempBlock.abc += abcText; //インポートするならページ内のtextは無視
                 }

@@ -3,8 +3,7 @@ export type ABCLink = {
     pageTitle: string
 }
 
-export type Line = {
-    id: string,
+export type ScrapboxLine = {
     text: string
 }
 
@@ -23,4 +22,9 @@ export type ABCBlock = {
 export type ScoreElement = {
     parentElementID: string
     element: HTMLElement
+}
+
+export type ExternalABC = {
+    pageTitle: string,
+    abc: string
 }
