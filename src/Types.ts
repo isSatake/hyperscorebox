@@ -25,6 +25,11 @@ export type ScoreElement = {
 }
 
 export type ExternalABC = {
-    pageTitle: string,
+    source: string,
     abc: string
+}
+
+export type ImportABCInfo = {
+    project: string,
+    page: string
 }
