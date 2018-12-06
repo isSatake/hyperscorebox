@@ -98,7 +98,7 @@ export const render = (abc: string, links: ABCLink[], staffWidth: number, svgDiv
         }
     }
 
-    abcjs.renderMidi(playerDivID, abc, {inlineControls: {loopToggle: true}, generateDownload: true});
+    abcjs.renderMidi(playerDivID, abc, {generateInline: false, generateDownload: true});
 };
 
 window.addEventListener("click", e => {
