@@ -1,3 +1,4 @@
+import * as WebAudioTinySynth from "webaudio-tinysynth";
 import {ABCBlock, ScoreElement} from "./Types";
 import {generateInlineStyle} from "./Scrapbox";
 import {parseLink, render} from "./ABC";
@@ -6,6 +7,7 @@ import {parseLink, render} from "./ABC";
 //ページ内に書かれた楽譜情報を管理する
 export class Page {
     private scoreElements: ScoreElement[] = [];
+    private tinySynth = new WebAudioTinySynth({voices: 64});
 
     private pushScoreElement = (block: ABCBlock): void => {
         const {titleElementID, titleElement, blockHeight, offsetLeft, width, abc, isEditing} = block;
@@ -19,6 +21,22 @@ export class Page {
             if (!classList.contains("abcediting")) {
                 classList.add("abcediting");
             }
+        });
+        scoreDiv.addEventListener("mouseover", (e) => {
+            const midiDlEl = scoreDiv.querySelector(".abcjs-download-midi a");
+            const midiStr = midiDlEl.getAttribute("href").replace(/data:audio\/midi,/, "").replace(/MThd/g, "%4D%54%68%64").replace(/MTrk/g, "%4D%54%72%6B");
+            const midiArray = midiStr.split("%");
+            midiArray.shift();
+            const arrayBuffer = new ArrayBuffer(midiArray.length);
+            const dataView = new DataView(arrayBuffer);
+            let position = 0;
+            for(let byte of midiArray){
+                dataView.setUint8(position, parseInt(byte, 16));
+                position++;
+            }
+            this.tinySynth.loadMIDI(arrayBuffer);
+            this.tinySynth.stopMIDI();
+            this.tinySynth.playMIDI();
         });
 
         const svgDiv = document.createElement("div");

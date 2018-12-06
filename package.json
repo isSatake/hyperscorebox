@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "abcjs": "^5.3.4",
-    "jquery": "^3.3.1"
+    "jquery": "^3.3.1",
+    "webaudio-tinysynth": "^1.0.1"
   }
 }
