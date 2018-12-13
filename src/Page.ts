@@ -1,34 +1,29 @@
-import {ABCBlock, ScoreElement} from "./Types";
+import {ABCBlock, ScoreView} from "./Types";
 import {generateInlineStyle} from "./Scrapbox";
 import {getSMF, parseLink, render} from "./ABC";
 
 //Scrapboxページ
 //ページ内に書かれた楽譜情報を管理する
 export class Page {
-    private scoreElements: ScoreElement[] = [];
+    private scoreViews: ScoreView[] = [];
     private tinySynth;
-    constructor(tinySynth){
+
+    constructor(tinySynth) {
         this.tinySynth = tinySynth;
     }
 
-    private pushScoreElement = (block: ABCBlock): void => {
+    private pushScoreView = (block: ABCBlock): void => {
         const {titleElementID, titleElement, blockHeight, offsetLeft, width, abc, isEditing} = block;
-        const scoreDiv = document.createElement("div");
-        scoreDiv.classList.add("scoreview");
-        scoreDiv.setAttribute("id", `ABC${titleElementID}`);
-        scoreDiv.setAttribute("style", generateInlineStyle(isEditing, blockHeight, offsetLeft, width));
-        scoreDiv.addEventListener("mousedown", e => {
+        const scoreView = document.createElement("div");
+        scoreView.classList.add("scoreview");
+        scoreView.setAttribute("id", `ABC${titleElementID}`);
+        scoreView.setAttribute("style", generateInlineStyle(isEditing, blockHeight, offsetLeft, width));
+        scoreView.addEventListener("mousedown", e => {
             e.stopPropagation();
             const {classList} = titleElement;
             if (!classList.contains("abcediting")) {
                 classList.add("abcediting");
             }
-        });
-
-        scoreDiv.addEventListener("mouseover", (e) => {
-            this.tinySynth.loadMIDI(getSMF(scoreDiv));
-            this.tinySynth.stopMIDI();
-            this.tinySynth.playMIDI();
         });
 
         const svgDiv = document.createElement("div");
@@ -41,21 +36,43 @@ export class Page {
         playerDiv.setAttribute("id", playerDivID);
         playerDiv.setAttribute("style", `margin-top:-10px`);
 
-        scoreDiv.appendChild(svgDiv);
-        scoreDiv.appendChild(playerDiv);
-        block.titleElement.appendChild(scoreDiv);
-        this.scoreElements.push({
+        const midiControllerDiv = document.createElement("div");
+        midiControllerDiv.setAttribute("style", `display: none; position: absolute; top: ${blockHeight}`);
+        const playButton = document.createElement("button");
+        playButton.innerText = "▶";
+        playButton.addEventListener("mousedown", e => {
+            this.tinySynth.loadMIDI(getSMF(scoreView));
+            this.tinySynth.stopMIDI();
+            this.tinySynth.playMIDI();
+            e.stopPropagation();
+        });
+        midiControllerDiv.appendChild(playButton);
+
+        scoreView.appendChild(svgDiv);
+        scoreView.appendChild(playerDiv);
+        scoreView.appendChild(midiControllerDiv);
+        block.titleElement.appendChild(scoreView);
+        this.scoreViews.push({
             parentElementID: titleElementID,
-            element: scoreDiv
+            element: scoreView
         });
         render(abc, parseLink(abc), titleElement.clientWidth - 30, svgDivID, playerDivID);
+
+        scoreView.addEventListener("mouseover", (e) => {
+            //再生ボタン追加
+            midiControllerDiv.style.display = "";
+            //クリックイベント追加
+        });
+        scoreView.addEventListener("mouseleave", () => {
+            midiControllerDiv.style.display = "none";
+        })
     };
 
-    private getElement = (elementID: string): ScoreElement => {
-        if (this.scoreElements.length < 1) return null;
-        for (let scoreElement of this.scoreElements) {
-            if (scoreElement.parentElementID === elementID) {
-                return scoreElement;
+    private getElement = (elementID: string): ScoreView => {
+        if (this.scoreViews.length < 1) return null;
+        for (let scoreView of this.scoreViews) {
+            if (scoreView.parentElementID === elementID) {
+                return scoreView;
             }
         }
         return null;
@@ -63,11 +80,11 @@ export class Page {
 
     private updateElement = (block: ABCBlock): boolean => {
         const {abc, isEditing, titleElementID, blockHeight, offsetLeft, width, titleElement} = block;
-        const scoreElement = this.getElement(titleElementID);
-        if (!scoreElement) { //コードブロックが無いとき
+        const scoreView = this.getElement(titleElementID);
+        if (!scoreView) { //コードブロックが無いとき
             return false;
         }
-        scoreElement.element.setAttribute("style", generateInlineStyle(isEditing, blockHeight, offsetLeft, width));
+        scoreView.element.setAttribute("style", generateInlineStyle(isEditing, blockHeight, offsetLeft, width));
         render(abc, parseLink(abc), titleElement.clientWidth - 30, `SVG${titleElementID}`, `PLAYER${titleElementID}`);
         return true;
     };
@@ -75,7 +92,7 @@ export class Page {
     public update = (newAbcBlocks: ABCBlock[]): void => {
         for (let newBlock of newAbcBlocks) {
             if (!this.updateElement(newBlock)) {
-                this.pushScoreElement(newBlock);
+                this.pushScoreView(newBlock);
             }
         }
     }
