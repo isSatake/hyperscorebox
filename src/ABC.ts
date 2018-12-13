@@ -101,6 +101,21 @@ export const render = (abc: string, links: ABCLink[], staffWidth: number, svgDiv
     abcjs.renderMidi(playerDivID, abc, {generateInline: false, generateDownload: true});
 };
 
+export const getSMF = (containerEl: Element): ArrayBuffer => {
+    const midiDlEl = containerEl.querySelector(".abcjs-download-midi a");
+    const midiStr = midiDlEl.getAttribute("href").replace(/data:audio\/midi,/, "").replace(/MThd/g, "%4D%54%68%64").replace(/MTrk/g, "%4D%54%72%6B");
+    const midiArray = midiStr.split("%");
+    midiArray.shift();
+    const arrayBuffer = new ArrayBuffer(midiArray.length);
+    const dataView = new DataView(arrayBuffer);
+    let position = 0;
+    for(let byte of midiArray){
+        dataView.setUint8(position, parseInt(byte, 16));
+        position++;
+    }
+    return arrayBuffer;
+};
+
 window.addEventListener("click", e => {
     console.log("onmousedown", "shifted:", e.shiftKey);
     shifted = e.shiftKey

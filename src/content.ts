@@ -2,12 +2,14 @@ import {Page} from "./Page";
 import {getABCBlocks, registerTextInputMutationObserver} from "./Scrapbox";
 import {ABCBlock} from "./Types";
 import {initIME} from "./IME";
+import * as WebAudioTinySynth from "webaudio-tinysynth";
 
 const MSG = "hyperscorebox";
 
 console.log(MSG, "hello from hyperscorebox");
+const tinySynth = new WebAudioTinySynth({voices: 64});
 
-const page = new Page();
+const page = new Page(tinySynth);
 const update = (timeout: number = 0) => {
     setTimeout(async () => {
         const ABCBlocks: ABCBlock[] = await getABCBlocks();
@@ -26,6 +28,6 @@ setTimeout(() => {
         }
     });
     registerTextInputMutationObserver(() => update(100));
-    initIME();
+    initIME(tinySynth);
     update();
 }, 2000);
