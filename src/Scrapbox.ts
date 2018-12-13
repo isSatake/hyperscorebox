@@ -12,7 +12,12 @@ const getPageLines = async (pageTitle: string): Promise<ScrapboxLine[]> => {
 };
 
 const getCodeBlock = async (pageTitle: string, codeTitle: string): Promise<string> => {
-    const res = await fetch(`https://scrapbox.io/api/code/${SCRAPBOX_PROJECT_NAME}/${pageTitle}/${codeTitle}`);
+    const res = await fetch(`https://scrapbox.io/api/code/${SCRAPBOX_PROJECT_NAME}/${pageTitle}/${codeTitle}`).then(res => {
+        if (!res.ok) {
+            throw new Error(`getCodeBlock(): Failed to HTTP request ${res.status} ${res.statusText}`)
+        }
+        return res
+    });
     return await res.text();
 };
 
@@ -30,7 +35,6 @@ export const getABCBlocks = async (): Promise<ABCBlock[]> => {
     const blocks: ABCBlock[] = [];
     let tempBlock: ABCBlock = null; //連続したcode-block毎に組み立てる
     let hasCodeBlock = false; //1個前のlineがcode-blockならtrue
-    let importedABC = "";
 
     //Scrapboxの行
     const lines = document.querySelector(".lines").children;
@@ -44,23 +48,33 @@ export const getABCBlocks = async (): Promise<ABCBlock[]> => {
             if (tempBlock && !hasCodeBlock) { //コードブロックが途切れたらblocksにpush
                 blocks.push(tempBlock);
                 tempBlock = null;
-                importedABC = "";
             }
 
-            const abcText = `\n${codeBlockEl.textContent.replace(/^\t+/, "")}`;
-
-            //インポート記法
-            if (tempBlock && !importedABC && /%import:.*/.test(abcText)) {
-                const pageTitle = abcText.substr(9);
-                console.log("import external abc", pageTitle);
-                for (let externalABC of externalABCs) {
-                    if (externalABC.pageTitle === pageTitle) {
-                        importedABC = externalABC.abc;
+            let abcText = `\n${codeBlockEl.textContent.replace(/^\t+/, "")}`;
+            const matchedArray: string[] = abcText.match(/\${[^{}]+}/g);
+            if (tempBlock && matchedArray) {
+                for (let matchedStr of matchedArray) {
+                    const importSource = matchedStr.replace(/(^\${|}$)/g, "");
+                    let hasCache: boolean = false;
+                    console.log("library", importSource);
+                    for (let externalABC of externalABCs) {
+                        if (externalABC.source === importSource) {
+                            abcText = abcText.replace(matchedStr, externalABC.abc);
+                            hasCache = true;
+                            console.log("library", "usecache");
+                            break;
+                        }
                     }
-                }
-                if (!importedABC) {
-                    importedABC = await getCodeBlock(pageTitle, await getFirstCodeBlockTitle(pageTitle));
-                    externalABCs.push({pageTitle: pageTitle, abc: importedABC});
+                    if (!hasCache) {
+                        try {
+                            const importedABC = (await getCodeBlock(importSource, await getFirstCodeBlockTitle(importSource))).replace(/( |\n)+$/, "");
+                            abcText = abcText.replace(matchedStr, importedABC);
+                            externalABCs.push({source: importSource, abc: importedABC});
+                            console.log("library", "get");
+                        } catch (e) {
+                            console.log(e)
+                        }
+                    }
                 }
             }
 
@@ -68,8 +82,8 @@ export const getABCBlocks = async (): Promise<ABCBlock[]> => {
             const left = codeBlockEl.querySelector(".indent-mark").clientWidth;
             const width = codeBlockEl.querySelector(".indent").clientWidth;
             if (tempBlock) { //tempBlockが存在したら追加系の操作のみ行う
-                if (importedABC && !tempBlock.abc) {
-                    tempBlock.abc = importedABC;
+                if (!tempBlock.abc) {
+                    tempBlock.abc = abcText;
                 } else {
                     tempBlock.abc += abcText; //インポートするならページ内のtextは無視
                 }
