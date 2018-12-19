@@ -1,5 +1,5 @@
 import {Page} from "./Page";
-import {getABCBlocks, registerTextInputMutationObserver} from "./Scrapbox";
+import {getABCBlocks, registerTextInputMutationObserver, registerPageTransitionObserver} from "./Scrapbox";
 import {ABCBlock} from "./Types";
 import {initIME} from "./IME";
 
@@ -8,24 +8,25 @@ const MSG = "hyperscorebox";
 console.log(MSG, "hello from hyperscorebox");
 
 const page = new Page();
-const update = (timeout: number = 0) => {
+const update = (timeout: number = 0, isPageTransition: boolean = false) => {
     setTimeout(async () => {
         const ABCBlocks: ABCBlock[] = await getABCBlocks();
         console.log(MSG, "update", "ABCBlocks", ABCBlocks);
-        page.update(ABCBlocks);
+        page.update(ABCBlocks, isPageTransition);
     }, timeout);
 };
 
 //初期化
 setTimeout(() => {
     window.addEventListener("click", () => update());
-    window.addEventListener("mousedown", e => {
+    window.addEventListener("mousedown", () => {
         const editingABCs = document.getElementsByClassName("abcediting");
         for (let abcEl of editingABCs) {
             abcEl.classList.remove("abcediting");
         }
     });
-    registerTextInputMutationObserver(() => update(100));
+    registerTextInputMutationObserver(() => update());
+    registerPageTransitionObserver(() => update(0, true));
     initIME();
     update();
 }, 2000);

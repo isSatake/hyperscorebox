@@ -9,6 +9,11 @@ export class Page {
 
     private pushScoreElement = (block: ABCBlock): void => {
         const {titleElementID, titleElement, blockHeight, offsetLeft, width, abc, isEditing} = block;
+
+        //ページ遷移時、複数回pushScoreElementが実行されてしまうのでDivの重複を回避する
+        const oldScoreDiv = document.querySelector(`#ABC${titleElementID}`);
+        if (oldScoreDiv) oldScoreDiv.parentNode.removeChild(oldScoreDiv);
+
         const scoreDiv = document.createElement("div");
         scoreDiv.classList.add("scoreview");
         scoreDiv.setAttribute("id", `ABC${titleElementID}`);
@@ -41,7 +46,7 @@ export class Page {
         render(abc, parseLink(abc), titleElement.clientWidth - 30, svgDivID, playerDivID);
     };
 
-    private getElement = (elementID: string): ScoreElement => {
+    private getScoreElement = (elementID: string): ScoreElement => {
         if (this.scoreElements.length < 1) return null;
         for (let scoreElement of this.scoreElements) {
             if (scoreElement.parentElementID === elementID) {
@@ -53,7 +58,7 @@ export class Page {
 
     private updateElement = (block: ABCBlock): boolean => {
         const {abc, isEditing, titleElementID, blockHeight, offsetLeft, width, titleElement} = block;
-        const scoreElement = this.getElement(titleElementID);
+        const scoreElement = this.getScoreElement(titleElementID);
         if (!scoreElement) { //コードブロックが無いとき
             return false;
         }
@@ -62,8 +67,11 @@ export class Page {
         return true;
     };
 
-    public update = (newAbcBlocks: ABCBlock[]): void => {
+    public update = (newAbcBlocks: ABCBlock[], isPageTransition: boolean = false): void => {
         for (let newBlock of newAbcBlocks) {
+            if (isPageTransition) {
+                this.scoreElements = [];
+            }
             if (!this.updateElement(newBlock)) {
                 this.pushScoreElement(newBlock);
             }
