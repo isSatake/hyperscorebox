@@ -142,3 +142,9 @@ export const registerTextInputMutationObserver = (_function: (textInput?: HTMLIn
     });
     textInputObserver.observe(textInput, {attributes: true});
 };
+
+export const registerPageTransitionObserver = (_function: () => void) => {
+    const pageWrapper = document.querySelector(".page-wrapper");
+    const transitionObserver = new MutationObserver(_function);
+    transitionObserver.observe(pageWrapper, {attributes: true});
+};

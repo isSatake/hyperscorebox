@@ -82,6 +82,7 @@ export const render = (abc: string, links: ABCLink[], staffWidth: number, svgDiv
         staffwidth: staffWidth
     };
     const tuneObjectArray = abcjs.renderAbc(svgDivID, abc, options);
+    if(links.length === 0) return;
 
     //リンクをハイライト
     const lines = tuneObjectArray[0].lines;

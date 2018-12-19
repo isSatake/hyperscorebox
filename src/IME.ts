@@ -232,7 +232,9 @@ export const initIME = (_tinySynth) => {
     const caret = container.querySelector(".cursor") as HTMLElement;
     document.addEventListener("keydown", e => {
         //キャレットはコードブロック内にあるか？
-        const codeBlock = container.querySelector(".cursor-line").querySelector("span.code-block");
+        const cursorLine = container.querySelector(".cursor-line");
+        if(!cursorLine) return;
+        const codeBlock = cursorLine.querySelector("span.code-block");
         if (e.key === "Escape") {
             if (codeBlock) {
                 if (style.display === "") {
