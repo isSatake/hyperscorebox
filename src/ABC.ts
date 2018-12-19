@@ -82,6 +82,7 @@ export const render = (abc: string, links: ABCLink[], staffWidth: number, svgDiv
         staffwidth: staffWidth
     };
     const tuneObjectArray = abcjs.renderAbc(svgDivID, abc, options);
+    abcjs.renderMidi(playerDivID, abc, {generateInline: true, generateDownload: true});
     if(links.length === 0) return;
 
     //リンクをハイライト
@@ -99,7 +100,6 @@ export const render = (abc: string, links: ABCLink[], staffWidth: number, svgDiv
         }
     }
 
-    abcjs.renderMidi(playerDivID, abc, {generateInline: false, generateDownload: true});
 };
 
 export const getSMF = (containerEl: Element): ArrayBuffer => {
