@@ -1,6 +1,7 @@
 import {IMECandidate} from "./IMECandidate";
 import * as abcjs from "abcjs/midi";
 import {registerTextInputMutationObserver} from "./Scrapbox";
+import {getSMF} from "./ABC";
 
 type InputEvent = {
     isComposing: boolean;
@@ -177,7 +178,8 @@ const resetHighlight = () => {
     updateHighlight();
 };
 
-export const initIME = () => {
+export const initIME = (_tinySynth) => {
+    const tinySynth = _tinySynth;
     const IMEEl = document.createElement("div");
     IMEEl.setAttribute("id", "ime");
     const {style} = IMEEl;
@@ -213,6 +215,11 @@ export const initIME = () => {
     const candidatesEl = document.createElement("div");
     candidatesEl.setAttribute("id", "imecandidates");
 
+    const midiElID = "IMEMIDI";
+    const midiEl = document.createElement("div");
+    midiEl.id = midiElID;
+    IMEEl.appendChild(midiEl);
+
     //キャレットに追従
     registerTextInputMutationObserver(textInput => {
         style.top = `${textInput.offsetTop + 20}px`;
@@ -225,7 +232,9 @@ export const initIME = () => {
     const caret = container.querySelector(".cursor") as HTMLElement;
     document.addEventListener("keydown", e => {
         //キャレットはコードブロック内にあるか？
-        const codeBlock = container.querySelector(".cursor-line").querySelector("span.code-block");
+        const cursorLine = container.querySelector(".cursor-line");
+        if(!cursorLine) return;
+        const codeBlock = cursorLine.querySelector("span.code-block");
         if (e.key === "Escape") {
             if (codeBlock) {
                 if (style.display === "") {
@@ -295,6 +304,7 @@ export const initIME = () => {
             resetHighlight();
             imeInput.value = text;
             abcjs.renderAbc("imesvg", text, {responsive: "resize"});
+            abcjs.renderMidi(midiElID, text, {generateInline: false, generateDownload: true});
             onInput(text);
             return;
         } else if (key === "Enter") {
@@ -307,6 +317,10 @@ export const initIME = () => {
                     text = candidates[highlightIndex];
                 }
                 document.execCommand("insertText", null, text);
+                //最後にrenderしてたabcのsmfをtinyに流すかな
+                tinySynth.loadMIDI(getSMF(midiEl));
+                tinySynth.stopMIDI();
+                tinySynth.playMIDI();
                 text = "";
                 invisibleSpan.textContent = "";
                 textInput.style.marginLeft = "";
@@ -345,6 +359,7 @@ export const initIME = () => {
         }
         imeInput.value = text;
         abcjs.renderAbc("imesvg", text, {responsive: "resize"});
+        abcjs.renderMidi(midiElID, text, {generateInline: false, generateDownload: true});
         onInput(text);
         e.preventDefault();
         e.stopPropagation();

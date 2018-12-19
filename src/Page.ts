@@ -1,19 +1,29 @@
-import {ABCBlock, ScoreElement} from "./Types";
+import {ABCBlock, ScoreView} from "./Types";
 import {generateInlineStyle} from "./Scrapbox";
-import {parseLink, render} from "./ABC";
+import {getSMF, parseLink, render} from "./ABC";
 
 //Scrapboxページ
 //ページ内に書かれた楽譜情報を管理する
 export class Page {
-    private scoreElements: ScoreElement[] = [];
+    private scoreViews: ScoreView[] = [];
+    private tinySynth;
 
-    private pushScoreElement = (block: ABCBlock): void => {
+    constructor(tinySynth) {
+        this.tinySynth = tinySynth;
+    }
+
+    private pushScoreView = (block: ABCBlock): void => {
         const {titleElementID, titleElement, blockHeight, offsetLeft, width, abc, isEditing} = block;
-        const scoreDiv = document.createElement("div");
-        scoreDiv.classList.add("scoreview");
-        scoreDiv.setAttribute("id", `ABC${titleElementID}`);
-        scoreDiv.setAttribute("style", generateInlineStyle(isEditing, blockHeight, offsetLeft, width));
-        scoreDiv.addEventListener("mousedown", e => {
+
+        //ページ遷移時、複数回pushScoreViewが実行されてしまうのでDivの重複を回避する
+        const oldScoreDiv = document.querySelector(`#ABC${titleElementID}`);
+        if (oldScoreDiv) oldScoreDiv.parentNode.removeChild(oldScoreDiv);
+
+        const scoreView = document.createElement("div");
+        scoreView.classList.add("scoreview");
+        scoreView.setAttribute("id", `ABC${titleElementID}`);
+        scoreView.setAttribute("style", generateInlineStyle(isEditing, blockHeight, offsetLeft, width));
+        scoreView.addEventListener("mousedown", e => {
             e.stopPropagation();
             const {classList} = titleElement;
             if (!classList.contains("abcediting")) {
@@ -31,21 +41,60 @@ export class Page {
         playerDiv.setAttribute("id", playerDivID);
         playerDiv.setAttribute("style", `margin-top:-10px`);
 
-        scoreDiv.appendChild(svgDiv);
-        scoreDiv.appendChild(playerDiv);
-        block.titleElement.appendChild(scoreDiv);
-        this.scoreElements.push({
+
+        scoreView.appendChild(svgDiv);
+        scoreView.appendChild(playerDiv);
+        block.titleElement.appendChild(scoreView);
+        this.scoreViews.push({
             parentElementID: titleElementID,
-            element: scoreDiv
+            element: scoreView
         });
+
         render(abc, parseLink(abc), titleElement.clientWidth - 30, svgDivID, playerDivID);
+
+        const midiControllerDiv = document.createElement("div");
+        midiControllerDiv.setAttribute("style", `display: none; position: absolute; top: ${blockHeight}`);
+        const playButton = document.createElement("button");
+        playButton.innerText = "▶";
+        this.tinySynth.loadMIDI(getSMF(scoreView));
+        playButton.addEventListener("mousedown", e => {
+            if (playButton.innerText === "▪▪") {
+                this.tinySynth.stopMIDI();
+                playButton.innerText = "▶";
+            } else {
+                this.tinySynth.playMIDI();
+                playButton.innerText = "▪▪";
+            }
+            e.stopPropagation();
+        });
+
+        const stopButton = document.createElement("button");
+        stopButton.innerText = "▪";
+        stopButton.addEventListener("mousedown", e => {
+            this.tinySynth.loadMIDI(getSMF(scoreView));
+            playButton.innerText = "▶";
+            e.stopPropagation();
+        });
+
+        midiControllerDiv.appendChild(playButton);
+        midiControllerDiv.appendChild(stopButton);
+        scoreView.appendChild(midiControllerDiv);
+
+        scoreView.addEventListener("mouseover", (e) => {
+            //再生ボタン追加
+            midiControllerDiv.style.display = "";
+            //クリックイベント追加
+        });
+        scoreView.addEventListener("mouseleave", () => {
+            midiControllerDiv.style.display = "none";
+        })
     };
 
-    private getElement = (elementID: string): ScoreElement => {
-        if (this.scoreElements.length < 1) return null;
-        for (let scoreElement of this.scoreElements) {
-            if (scoreElement.parentElementID === elementID) {
-                return scoreElement;
+    private getScoreViews = (elementID: string): ScoreView => {
+        if (this.scoreViews.length < 1) return null;
+        for (let scoreView of this.scoreViews) {
+            if (scoreView.parentElementID === elementID) {
+                return scoreView;
             }
         }
         return null;
@@ -53,19 +102,22 @@ export class Page {
 
     private updateElement = (block: ABCBlock): boolean => {
         const {abc, isEditing, titleElementID, blockHeight, offsetLeft, width, titleElement} = block;
-        const scoreElement = this.getElement(titleElementID);
-        if (!scoreElement) { //コードブロックが無いとき
+        const scoreView = this.getScoreViews(titleElementID);
+        if (!scoreView) { //コードブロックが無いとき
             return false;
         }
-        scoreElement.element.setAttribute("style", generateInlineStyle(isEditing, blockHeight, offsetLeft, width));
+        scoreView.element.setAttribute("style", generateInlineStyle(isEditing, blockHeight, offsetLeft, width));
         render(abc, parseLink(abc), titleElement.clientWidth - 30, `SVG${titleElementID}`, `PLAYER${titleElementID}`);
         return true;
     };
 
-    public update = (newAbcBlocks: ABCBlock[]): void => {
+    public update = (newAbcBlocks: ABCBlock[], isPageTransition: boolean = false): void => {
         for (let newBlock of newAbcBlocks) {
+            if (isPageTransition) {
+                this.scoreViews = [];
+            }
             if (!this.updateElement(newBlock)) {
-                this.pushScoreElement(newBlock);
+                this.pushScoreView(newBlock);
             }
         }
     }

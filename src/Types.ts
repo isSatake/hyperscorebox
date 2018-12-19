@@ -19,7 +19,7 @@ export type ABCBlock = {
 }
 
 //楽譜表示部の状態
-export type ScoreElement = {
+export type ScoreView = {
     parentElementID: string
     element: HTMLElement
 }
@@ -27,4 +27,9 @@ export type ScoreElement = {
 export type ExternalABC = {
     source: string,
     abc: string
+}
+
+export type ImportABCInfo = {
+    project: string,
+    page: string
 }

@@ -1,5 +1,9 @@
 /* Some basic CSS to make the MIDI controls in abcjs presentable. */
 
+.abcjs-download-midi {
+	display: none;
+}
+
 .abcjs-inline-midi {
 	height: 26px;
 	padding: 0 5px;
