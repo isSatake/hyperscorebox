@@ -66,7 +66,7 @@ const parseAndImportABC = async (text: string): Promise<string> => {
         const loadedABCCache = loadExtABCCache(parsedImport);
         if (loadedABCCache) return await parseAndImportABC(loadedABCCache);
         const {project, page} = parsedImport;
-        const imported = await getCodeBlock(page, await getFirstCodeBlockTitle(page, project), project);
+        const imported = await getCodeBlock(page, await getFirstCodeBlockTitle(page, project));
         const importedABC = await parseAndImportABC(imported);
         registerExtABCCache(parsedImport, importedABC);
         return importedABC;
