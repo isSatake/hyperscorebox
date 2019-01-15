@@ -318,9 +318,9 @@ export const initIME = (_tinySynth) => {
                 }
                 document.execCommand("insertText", null, text);
                 //最後にrenderしてたabcのsmfをtinyに流すかな
-                tinySynth.loadMIDI(getSMF(midiEl));
-                tinySynth.stopMIDI();
-                tinySynth.playMIDI();
+                // tinySynth.loadMIDI(getSMF(midiEl));
+                // tinySynth.stopMIDI();
+                // tinySynth.playMIDI();
                 text = "";
                 invisibleSpan.textContent = "";
                 textInput.style.marginLeft = "";

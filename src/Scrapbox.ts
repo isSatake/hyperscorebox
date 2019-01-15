@@ -9,8 +9,8 @@ const getPageLines = async (page: string, project?: string): Promise<ScrapboxLin
     return lines;
 };
 
-const getCodeBlock = async (pageTitle: string, codeTitle: string): Promise<string> => {
-    const res = await fetch(`https://scrapbox.io/api/code/${SCRAPBOX_PROJECT_NAME}/${pageTitle}/${codeTitle}`).then(res => {
+const getCodeBlock = async (projectTitle: string, pageTitle: string, codeTitle: string): Promise<string> => {
+    const res = await fetch(`https://scrapbox.io/api/code/${projectTitle}/${pageTitle}/${codeTitle}`).then(res => {
         if (!res.ok) {
             throw new Error(`getCodeBlock(): Failed to HTTP request ${res.status} ${res.statusText}`)
         }
@@ -31,8 +31,9 @@ const getFirstCodeBlockTitle = async (page: string, project?: string): Promise<s
 const externalABCCache: ExternalABC[] = [];
 
 const parseImport = (line: string): ImportABCInfo | null => {
-    if (/%import:.+/.test(line)) {
-        const importStr = line.replace(/.*%import:/, "");
+    const matched = line.match(/\${.+?}/);
+    if(matched){
+        const importStr = matched[0].replace(/^\${/, "").replace(/}$/, "");
         let project = SCRAPBOX_PROJECT_NAME;
         let page = importStr;
         if (importStr.match(/.+\//)) {
@@ -42,6 +43,17 @@ const parseImport = (line: string): ImportABCInfo | null => {
         return {project: project, page: page};
     }
     return null;
+    // if (/%import:.+/.test(line)) {
+    //     const importStr = line.replace(/.*%import:/, "");
+    //     let project = SCRAPBOX_PROJECT_NAME;
+    //     let page = importStr;
+    //     if (importStr.match(/.+\//)) {
+    //         project = importStr.split("/")[0];
+    //         page = importStr.split("/")[1];
+    //     }
+    //     return {project: project, page: page};
+    // }
+    // return null;
 };
 
 const loadExtABCCache = (importABCInfo: ImportABCInfo): string | null => {
@@ -61,12 +73,16 @@ const registerExtABCCache = (importABCInfo: ImportABCInfo, abc: string): void =>
 //インポートのための一連の処理
 const parseAndImportABC = async (text: string): Promise<string> => {
     const parsedImport: ImportABCInfo = parseImport(text);
+    //1行読む
+    //インポートを検出 (複数個あるかも)
+    //インポート
+    //インポート部をabcで置換
     if (parsedImport) {
         console.log("Import external abc", parsedImport);
         const loadedABCCache = loadExtABCCache(parsedImport);
         if (loadedABCCache) return await parseAndImportABC(loadedABCCache);
         const {project, page} = parsedImport;
-        const imported = await getCodeBlock(page, await getFirstCodeBlockTitle(page, project));
+        const imported = await getCodeBlock(project, page, await getFirstCodeBlockTitle(page, project));
         const importedABC = await parseAndImportABC(imported);
         registerExtABCCache(parsedImport, importedABC);
         return importedABC;

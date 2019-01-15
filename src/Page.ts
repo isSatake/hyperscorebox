@@ -78,7 +78,7 @@ export class Page {
 
         midiControllerDiv.appendChild(playButton);
         midiControllerDiv.appendChild(stopButton);
-        scoreView.appendChild(midiControllerDiv);
+        // scoreView.appendChild(midiControllerDiv);
 
         scoreView.addEventListener("mouseover", (e) => {
             //再生ボタン追加
