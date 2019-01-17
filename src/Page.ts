@@ -32,10 +32,6 @@ export class Page {
         scoreView.appendChild(svgDiv);
         scoreView.appendChild(playerDiv);
         block.titleElement.appendChild(scoreView);
-        this.scoreViews.push({
-            parentElementID: titleElementID,
-            element: scoreView
-        });
 
         render(abc, parseLink(abc), titleElement.clientWidth - 30, svgDivID, playerDivID);
 
@@ -58,6 +54,12 @@ export class Page {
         scoreView.addEventListener("mouseleave", () => {
             player.hidePlayer()
         });
+
+        this.scoreViews.push({
+            parentElementID: titleElementID,
+            element: scoreView,
+            player: player
+        });
     };
 
     private getScoreViews = (elementID: string): ScoreView => {
@@ -78,6 +80,7 @@ export class Page {
         }
         scoreView.element.setAttribute("style", generateInlineStyle(isEditing, blockHeight, offsetLeft, width));
         render(abc, parseLink(abc), titleElement.clientWidth - 30, `SVG${titleElementID}`, `PLAYER${titleElementID}`);
+        scoreView.player.load(getSMF(scoreView.element));
         return true;
     };
 

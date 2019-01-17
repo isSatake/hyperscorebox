@@ -1,48 +1,56 @@
 import * as WebAudioTinySynth from "webaudio-tinysynth";
 
 export class MIDIPlayer {
-    private readonly smf: ArrayBuffer;
     private readonly controller: HTMLElement;
     private readonly seekBar: HTMLInputElement;
     private readonly playAndPauseButton: HTMLButtonElement;
     private readonly rewindButton: HTMLButtonElement;
     private readonly downloadButton: HTMLButtonElement;
+    private smf: ArrayBuffer;
     private tinySynth = new WebAudioTinySynth({voices: 64});
 
     constructor(smf: ArrayBuffer) {
-        this.smf = smf;
-        this.tinySynth.loadMIDI(this.smf);
-        this.controller = document.createElement("div");
-        this.controller.className = "midi-controller";
-        this.controller.addEventListener("mousedown", e => e.stopPropagation());
+        this.load(smf);
 
-        this.seekBar = document.createElement("input");
-        this.seekBar.id = "position";
-        this.seekBar.type = "range";
-        this.seekBar.min = "0";
-        this.seekBar.max = "100";
-        this.seekBar.value = "0";
-        this.seekBar.step = "1";
-        this.seekBar.className = "input-range";
-        this.seekBar.addEventListener("input", this.seek);
-
-        this.playAndPauseButton = document.createElement("button");
-        this.playAndPauseButton.className = "midi-play-button";
-        this.playAndPauseButton.addEventListener("mousedown", this.playPause);
-
-        this.rewindButton = document.createElement("button");
-        this.rewindButton.className = "midi-rewind-button";
-        this.rewindButton.addEventListener("mousedown", this.rewind);
-
-        this.downloadButton = document.createElement("button");
-        this.downloadButton.className = "midi-download-button";
-        this.downloadButton.addEventListener("mousedown", this.download);
+        this.controller = this.createController();
+        this.seekBar = this.createSeekBar();
+        this.playAndPauseButton = this.createButton("midi-play-button", this.playPause);
+        this.rewindButton = this.createButton("midi-rewind-button", this.rewind);
+        this.downloadButton = this.createButton("midi-download-button", this.download);
 
         this.controller.appendChild(this.playAndPauseButton);
         this.controller.appendChild(this.rewindButton);
         this.controller.appendChild(this.seekBar);
         this.controller.appendChild(this.downloadButton);
     }
+
+    private createController = (): HTMLElement => {
+        const controller = document.createElement("div");
+        controller.className = "midi-controller";
+        controller.addEventListener("click", e => e.stopPropagation()); //更新防止
+        controller.addEventListener("mousedown", e => e.stopPropagation());
+        return controller;
+    };
+
+    private createSeekBar = (): HTMLInputElement => {
+        const seekBar = document.createElement("input");
+        seekBar.id = "position";
+        seekBar.type = "range";
+        seekBar.min = "0";
+        seekBar.max = "100";
+        seekBar.value = "0";
+        seekBar.step = "1";
+        seekBar.className = "input-range";
+        seekBar.addEventListener("input", this.seek);
+        return seekBar;
+    };
+
+    private createButton = (className: string, clickCallBack: () => void): HTMLButtonElement => {
+        const button = document.createElement("button");
+        button.className = className;
+        button.addEventListener("mousedown", clickCallBack);
+        return button;
+    };
 
     private play = (): void => {
         this.tinySynth.playMIDI();
@@ -101,5 +109,10 @@ export class MIDIPlayer {
 
     public hidePlayer = (): void => {
         this.controller.style.visibility = "hidden";
+    };
+
+    public load = (smf: ArrayBuffer): void => {
+        this.smf = smf;
+        this.tinySynth.loadMIDI(smf);
     };
 }

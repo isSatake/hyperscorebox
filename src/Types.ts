@@ -1,3 +1,5 @@
+import {MIDIPlayer} from "./MIDIPlayer";
+
 export type ABCLink = {
     startChars: number[],
     pageTitle: string
@@ -22,6 +24,7 @@ export type ABCBlock = {
 export type ScoreView = {
     parentElementID: string
     element: HTMLElement
+    player: MIDIPlayer
 }
 
 export type ExternalABC = {
