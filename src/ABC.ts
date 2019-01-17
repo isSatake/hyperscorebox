@@ -82,7 +82,7 @@ export const render = (abc: string, links: ABCLink[], staffWidth: number, svgDiv
         staffwidth: staffWidth
     };
     const tuneObjectArray = abcjs.renderAbc(svgDivID, abc, options);
-    abcjs.renderMidi(playerDivID, abc, {generateInline: true, generateDownload: true});
+    abcjs.renderMidi(playerDivID, abc, {generateInline: false, generateDownload: true});
     if(links.length === 0) return;
 
     //リンクをハイライト

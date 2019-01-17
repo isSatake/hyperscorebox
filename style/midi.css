@@ -1,0 +1,75 @@
+.midi-controller {
+    position: absolute;
+    bottom: -25px;
+    display: flex;
+    visibility: hidden;
+    width: 100%;
+    height: 25px;
+    background: #585757;
+    font-weight: 900;
+    padding: 0 10px 0 15px;
+}
+
+.midi-play-button,
+.midi-pause-button,
+.midi-rewind-button,
+.midi-download-button{
+    width: 20px;
+    background: rgba(255, 255, 255, 0);
+    border: none;
+    padding: 0;
+    margin: -1px 10px 0 0;
+}
+
+.midi-rewind-button {
+    margin-right: 0;
+}
+
+.midi-play-button::before,
+.midi-pause-button::before,
+.midi-rewind-button::before,
+.midi-download-button::before{
+    font-family: "FontAwesome";
+    color: #fff;
+}
+
+.midi-play-button::before {
+    content: "\f04b";
+}
+
+.midi-pause-button::before {
+    content: "\f04c";
+}
+
+.midi-rewind-button::before {
+    content: "\f048";
+}
+
+.midi-download-button::before {
+    content: "\f019";
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 12px;
+    width: 12px;
+    border-radius: 10px;
+    /*border: 1px solid #6c6c6c;*/
+    background: #fff;
+}
+
+.input-range {
+    display: inline;
+    width: 50%;
+    margin: 12px 20px 12px 12px;
+}
+
+.input-range[type="range"] {
+    height: 2px;
+    background: #9a9a9a;
+    -webkit-appearance: none;
+}
+
+.abcjs-download-midi {
+    display: none;
+}

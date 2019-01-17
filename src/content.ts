@@ -9,7 +9,7 @@ const MSG = "hyperscorebox";
 console.log(MSG, "hello from hyperscorebox");
 const tinySynth = new WebAudioTinySynth({voices: 64});
 
-const page = new Page(tinySynth);
+const page = new Page();
 const update = (timeout: number = 0, isPageTransition: boolean = false) => {
     setTimeout(async () => {
         const ABCBlocks: ABCBlock[] = await getABCBlocks();
