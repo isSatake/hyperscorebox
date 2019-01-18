@@ -7,7 +7,8 @@
 
 <img src="https://i.gyazo.com/2b81c8ae28acab054b68d8146c2fecef.gif">
 
-### build
+## Development
+### Build
 ```
 $ git clone git@github.com:stkay/hyperscorebox.git
 $ cd hyperscorebox
@@ -15,8 +16,8 @@ $ npm i
 $ npm run build
 ```
 
-### install
-1. 上記のビルド作業を行う
+### Install
+1. Build
 2. GoogleChromeで `chrome://extensions` を開く
 3. 画面右上の `デベロッパーモード` と書かれた トグルスイッチをONにする
 4. `パッケージ化されていない拡張機能を読み込む` をクリック
@@ -26,3 +27,6 @@ $ npm run build
 
 参考
 - <a href="https://scrapbox.io/satakebox/開発中のChromeExtensionを読み込む">開発中のChromeExtensionを読み込む</a>
+
+## License
+MIT (see LICENSE.md)
