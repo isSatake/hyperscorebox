@@ -5,7 +5,7 @@ import {MIDIPlayer} from "./MIDIPlayer";
 
 //Scrapboxページ
 //ページ内に書かれた楽譜情報を管理する
-export class Page {
+export class ScoresInPage {
     private scoreViews: ScoreView[] = [];
 
     private pushScoreView = (block: ABCBlock): void => {

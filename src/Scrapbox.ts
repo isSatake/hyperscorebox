@@ -1,5 +1,7 @@
 import {ABCBlock, ExternalABC, ImportABCInfo, ScrapboxLine} from "./Types";
 
+//Scrapboxのページ情報取得関数
+
 const SCRAPBOX_PROJECT_NAME = location.pathname.split("/")[1];
 export const SCRAPBOX_URL = `https://scrapbox.io/${SCRAPBOX_PROJECT_NAME}/`;
 

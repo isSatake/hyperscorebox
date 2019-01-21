@@ -295,7 +295,7 @@ export const initIME = (_tinySynth) => {
             return;
         }
         //スルーするキー
-        if (/(Control|Alt|Meta|Shift|Dead|Delete)/.test(key)) {
+        if (/(Control|Alt|Meta|Shift|Dead|Delete|ArrowLeft|ArrowRight)/.test(key)) {
             return;
         }
         if (key === "Tab") {

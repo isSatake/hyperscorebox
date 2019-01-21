@@ -118,6 +118,6 @@ export const getSMF = (containerEl: Element): ArrayBuffer => {
 };
 
 window.addEventListener("click", e => {
-    console.log("onmousedown", "shifted:", e.shiftKey);
+    console.log("onclick", "shifted:", e.shiftKey);
     shifted = e.shiftKey
 });
