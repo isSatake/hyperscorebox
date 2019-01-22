@@ -155,3 +155,11 @@ export const registerPageTransitionObserver = (_function: () => void) => {
     const transitionObserver = new MutationObserver(_function);
     transitionObserver.observe(pageWrapper, {attributes: true});
 };
+
+export const getEditorElement = (): HTMLElement => {
+    return document.getElementById("editor");
+};
+
+export const getCaretElement = (): HTMLElement => {
+    return getEditorElement().querySelector(".cursor") as HTMLElement;
+};

@@ -1,12 +1,17 @@
 import {IMECandidate} from "./IMECandidate";
 import * as abcjs from "abcjs/midi";
-import {registerTextInputMutationObserver} from "./Scrapbox";
+import {getCaretElement, getEditorElement, registerTextInputMutationObserver} from "./Scrapbox";
 import {getSMF} from "./ABC";
 
 type InputEvent = {
     isComposing: boolean;
     data: string;
 } & Event
+
+const MSG ="IME";
+
+//楽譜IME
+//クラス化する
 
 //辞書はこれからちゃんと作る
 const dict = [
@@ -100,13 +105,13 @@ const convert = (input: string): string | null => {
     let convertedStr = "";
     if (getRegExp(Object.keys(doremiToABC)).test(input)) {
         //ドレミ
-        console.log("convert", "doremi", input);
+        console.log(MSG, "convert", "doremi", input);
         convertedStr = convertDoremiToABC(input);
     }
     const nextStr = convertedStr ? convertedStr : input;
     if (getRegExp(Object.keys(accidentalToABC)).test(nextStr)) {
         //臨時記号
-        console.log("convert", "acc", nextStr);
+        console.log(MSG, "convert", "acc", nextStr);
         convertedStr = convertAccidentals(nextStr);
     }
     if (convertedStr) return convertedStr;
@@ -116,7 +121,7 @@ const convert = (input: string): string | null => {
 const candidateContainers: IMECandidate[] = [];
 
 const search = (input: string): string[] => {
-    console.log("search", input);
+    console.log(MSG, "search", input);
     if (input === "") return [];
     const candidatesStr = [];
     let searchStr = input;
@@ -151,7 +156,7 @@ const onInput = (input: string): void => {
     refreshCandidates();
     candidates = search(input);
     renderCandidates(candidates);
-    console.log("onkeyup", candidates);
+    console.log(MSG, "onkeyup", candidates);
 };
 
 let highlightIndex = -1;
@@ -178,11 +183,12 @@ const resetHighlight = () => {
     updateHighlight();
 };
 
-export const initIME = (_tinySynth) => {
-    const tinySynth = _tinySynth;
-    const IMEEl = document.createElement("div");
-    IMEEl.setAttribute("id", "ime");
-    const {style} = IMEEl;
+const MIDI_ELEMENT_ID = "IMEMIDI";
+
+const createIMEEl = (): HTMLElement => {
+    const el = document.createElement("div");
+    el.setAttribute("id", "ime");
+    const {style} = el;
     style.position = "absolute";
     style.zIndex = "1000";
     style.width = "400px";
@@ -191,75 +197,102 @@ export const initIME = (_tinySynth) => {
     style.backgroundColor = "white";
     style.border = "#ababab solid 1.5px";
     style.display = "none";
+    return el;
+};
 
-    const imeInput = document.createElement("input");
-    imeInput.style.position = "absolute";
-    imeInput.style.border = "none";
-    imeInput.style.width = "394px";
-    imeInput.style.height = "30px";
-    imeInput.style.top = "-29px";
-    imeInput.style.backgroundColor = "transparent";
-    imeInput.setAttribute("id", "imeinput");
-    imeInput.addEventListener("click", e => {
+const createIMEInputEl = (): HTMLInputElement => {
+    const el = document.createElement("input");
+    const {style} = el;
+    style.position = "absolute";
+    style.border = "none";
+    style.width = "394px";
+    style.height = "30px";
+    style.top = "-29px";
+    style.backgroundColor = "transparent";
+    el.setAttribute("id", "imeinput");
+    el.addEventListener("click", e => {
         e.preventDefault();
         e.stopPropagation();
     });
+    return el;
+};
+
+const createSvgEl = (): HTMLElement => {
+    const el = document.createElement("div");
+    const {style} = el;
+    style.width = "100%";
+    style.background = "#f5f5f5";
+    el.setAttribute("id", "imesvg");
+    return el;
+};
+
+const createCandidatesEl = (): HTMLElement => {
+    const el = document.createElement("div");
+    el.setAttribute("id", "imecandidates");
+    for (let i = 0; i < 6; i++) {
+        const candidate = new IMECandidate(i);
+        candidateContainers.push(candidate);
+        el.appendChild(candidate.getDiv());
+    }
+    return el;
+};
+
+const createMIDIEl = (): HTMLElement => {
+    const el = document.createElement("div");
+    el.id = MIDI_ELEMENT_ID;
+    return el;
+};
+
+//キャレットに追従
+const followTextInput = (textInput: HTMLInputElement, IMEEl: HTMLElement) => {
+    IMEEl.style.top = `${textInput.offsetTop + 20}px`;
+    IMEEl.style.left = textInput.style.left;
+};
+
+const isIgnoreKey = (inputKey: string): boolean => {
+    const ignoreKeys = ["Control", "Alt", "Meta", "Shift", "Dead", "Delete", "ArrowLeft", "ArrowRight"];
+    for(let ignore of ignoreKeys){
+        if(ignore === inputKey) return true
+    }
+
+    return false;
+};
+
+//初期化関数にロジック書くのはおかしい
+export const initIME = (_tinySynth) => {
+    const tinySynth = _tinySynth;
+    const IMEEl = createIMEEl();
+    const imeInput = createIMEInputEl();
+    const svgEl = createSvgEl();
+    const candidatesEl = createCandidatesEl();
+    const midiEl = createMIDIEl();
     IMEEl.appendChild(imeInput);
-
-    const svgEl = document.createElement("div");
-    svgEl.style.width = "100%";
-    svgEl.style.background = "#f5f5f5";
-    svgEl.setAttribute("id", "imesvg");
     IMEEl.appendChild(svgEl);
-
-    const candidatesEl = document.createElement("div");
-    candidatesEl.setAttribute("id", "imecandidates");
-
-    const midiElID = "IMEMIDI";
-    const midiEl = document.createElement("div");
-    midiEl.id = midiElID;
+    IMEEl.appendChild(candidatesEl);
     IMEEl.appendChild(midiEl);
 
-    //キャレットに追従
-    registerTextInputMutationObserver(textInput => {
-        style.top = `${textInput.offsetTop + 20}px`;
-        style.left = textInput.style.left;
-    });
-    const container = document.getElementById("editor");
+    registerTextInputMutationObserver(textInput => followTextInput(textInput, IMEEl));
+
+    const container = getEditorElement();
     container.appendChild(IMEEl);
 
     //キャレット表示中にEsc押したらIME表示
-    const caret = container.querySelector(".cursor") as HTMLElement;
+    const caret = getCaretElement();
     document.addEventListener("keydown", e => {
         //キャレットはコードブロック内にあるか？
         const cursorLine = container.querySelector(".cursor-line");
-        if(!cursorLine) return;
+        if (!cursorLine) return;
         const codeBlock = cursorLine.querySelector("span.code-block");
         if (e.key === "Escape") {
             if (codeBlock) {
-                if (style.display === "") {
-                    style.display = "none";
+                if (IMEEl.style.display === "") {
+                    IMEEl.style.display = "none";
                 } else if (caret.style.display === "") {
-                    style.display = "";
+                    IMEEl.style.display = "";
                 }
             }
         }
     });
-
-
-    const onSelected = (): void => {
-        // refreshCandidates();
-        // formEl.value = "";
-    };
-
-    for (let i = 0; i < 6; i++) {
-        const candidate = new IMECandidate(i, onSelected);
-        candidateContainers.push(candidate);
-        candidatesEl.appendChild(candidate.getDiv());
-    }
-
-    IMEEl.appendChild(candidatesEl);
-
 
     const textInput = document.getElementById('text-input') as HTMLInputElement;
     const updateTextInputOffset = (input: string) => {
@@ -273,29 +306,28 @@ export const initIME = (_tinySynth) => {
     invisibleSpan.style.visibility = "hidden";
     let text = "";
     let isComposeCompleted = false;
-    textInput.addEventListener("input", (e: InputEvent) => {
-        if (isComposeCompleted && e.isComposing) {
-            text += e.data;
-            imeInput.value = text;
-            //幅測定用spanを生成
-            updateTextInputOffset(text);
-            abcjs.renderAbc("imesvg", text, {responsive: "resize"});
-            onInput(text);
-            textInput.value = "";
-            isComposeCompleted = false;
-            e.preventDefault();
-            e.stopPropagation();
-        }
-    }, true);
 
-    textInput.addEventListener("keydown", e => {
-        if (style.display === "none") {
+    const onCompleteJapaneseInput = (e: InputEvent): void => {
+        console.log(MSG, "onCompleteJapaneseInput");
+        text += e.data;
+        imeInput.value = text;
+        //幅測定用spanを生成
+        updateTextInputOffset(text);
+        abcjs.renderAbc("imesvg", text, {responsive: "resize"});
+        onInput(text);
+        textInput.value = "";
+        isComposeCompleted = false;
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const onKeyDown = (e: KeyboardEvent): void => {
+        if (IMEEl.style.display === "none") {
             return;
         }
         const {key} = e;
-        console.log("imeevent", "keydown", `keyCode:${e.keyCode} key:${key}`);
-        //スルーするキー
-        if (/(Control|Alt|Meta|Shift|Dead|Delete|ArrowLeft|ArrowRight)/.test(key)) {
+        console.log(MSG, "onKeyDown", `keyCode:${e.keyCode} key:${key}`);
+        if (isIgnoreKey(key)) {
             return;
         }
         if (key === "Tab") {
@@ -304,12 +336,12 @@ export const initIME = (_tinySynth) => {
             resetHighlight();
             imeInput.value = text;
             abcjs.renderAbc("imesvg", text, {responsive: "resize"});
-            abcjs.renderMidi(midiElID, text, {generateInline: false, generateDownload: true});
+            abcjs.renderMidi(MIDI_ELEMENT_ID, text, {generateInline: false, generateDownload: true});
             onInput(text);
             return;
         } else if (key === "Enter") {
             if (e.keyCode === 229) {
-                console.log("oninput", "229");
+                console.log(MSG, "oninput", "229");
                 isComposeCompleted = true;
             } else {
                 if (!text) return;
@@ -359,16 +391,15 @@ export const initIME = (_tinySynth) => {
         }
         imeInput.value = text;
         abcjs.renderAbc("imesvg", text, {responsive: "resize"});
-        abcjs.renderMidi(midiElID, text, {generateInline: false, generateDownload: true});
+        abcjs.renderMidi(MIDI_ELEMENT_ID, text, {generateInline: false, generateDownload: true});
         onInput(text);
         e.preventDefault();
         e.stopPropagation();
-    });
+    };
 
-    //[]は違うイベントを捕捉しているらしい
-    //同じabcブロック内にヘッダ情報があれば取り込む(キーとかlengthとか)(タイトルとかは省く)
-    //input内のキャレット移動を可能にする(書き終わってからのリズム訂正やアーティキュレーション挿入が可能になる)
-    //矢印キーで候補操作
+    textInput.addEventListener("input", (e: InputEvent) => {
+        if (isComposeCompleted && e.isComposing) onCompleteJapaneseInput(e);
+    }, true);
 
-
+    textInput.addEventListener("keydown", onKeyDown);
 };

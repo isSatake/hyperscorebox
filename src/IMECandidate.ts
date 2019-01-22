@@ -8,11 +8,10 @@ export class IMECandidate {
     private readonly abcContainerId: string;
     private readonly abcContainerEl: HTMLDivElement;
     private readonly div: HTMLDivElement;
-    private readonly onSelected: () => void;
     private readonly messageEl: HTMLDivElement;
     private readonly highlightColor: string = "#dcf6ff";
 
-    constructor(index: number, onSelected: () => void) {
+    constructor(index: number) {
         this.index = index;
         this.msg = `IMECandidate#${this.index}`;
         this.abcContainerId = `note-candidate-${index}`;
@@ -31,8 +30,6 @@ export class IMECandidate {
         this.div.appendChild(this.messageEl);
         this.div.addEventListener("mouseenter", () => this.highlight(true));
         this.div.addEventListener("mouseleave", () => this.highlight(false));
-        // this.div.addEventListener("click", this.onClick);
-        this.onSelected = onSelected;
     }
 
     public getDiv = () => this.div;
@@ -44,26 +41,6 @@ export class IMECandidate {
     public highlight = (isHighlight: boolean) => {
         this.div.style.backgroundColor = isHighlight ? this.highlightColor : "#fff";
     };
-    // private onClick = async () => {
-    //     console.log(this.msg, "onclick");
-    //     await this.copyToClipboard();
-    //     this.onSelected();
-    // };
-    // private copyToClipboard = async () => {
-    //     console.log(this.msg, "copyToClipboard", `"${this.abcTextEl.value}"`);
-    //     this.abcTextEl.select();
-    //     document.execCommand("copy");
-    //     await this.onCopied();
-    // };
-    // private onCopied = () => new Promise(resolve => {
-    //     this.messageEl.style.height = `${this.div.clientHeight}px`;
-    //     this.reset();
-    //     this.messageEl.style.display = "";
-    //     setTimeout(() => {
-    //         this.messageEl.style.display = "none";
-    //         resolve();
-    //     }, 1000);
-    // });
     public reset = () => {
         console.log(this.msg, "reset");
         this.abcTextEl.value = "";
