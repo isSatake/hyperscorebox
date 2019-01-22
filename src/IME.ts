@@ -333,6 +333,7 @@ export const initIME = (_tinySynth) => {
         if (key === "Tab") {
         } else if (key === "Escape") {
             text = "";
+            updateTextInputOffset(text);
             resetHighlight();
             imeInput.value = text;
             abcjs.renderAbc("imesvg", text, {responsive: "resize"});
