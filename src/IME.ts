@@ -387,6 +387,7 @@ export const initIME = (_tinySynth) => {
             resetHighlight();
         } else {
             text += key;
+            updateTextInputOffset(text);
             resetHighlight();
         }
         imeInput.value = text;
