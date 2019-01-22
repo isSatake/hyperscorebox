@@ -289,11 +289,11 @@ export const initIME = (_tinySynth) => {
     }, true);
 
     textInput.addEventListener("keydown", e => {
-        const {key} = e;
-        console.log("imeevent", "keydown", `keyCode:${e.keyCode} key:${key}`);
         if (style.display === "none") {
             return;
         }
+        const {key} = e;
+        console.log("imeevent", "keydown", `keyCode:${e.keyCode} key:${key}`);
         //スルーするキー
         if (/(Control|Alt|Meta|Shift|Dead|Delete|ArrowLeft|ArrowRight)/.test(key)) {
             return;
