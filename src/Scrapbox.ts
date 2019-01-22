@@ -163,3 +163,7 @@ export const getEditorElement = (): HTMLElement => {
 export const getCaretElement = (): HTMLElement => {
     return getEditorElement().querySelector(".cursor") as HTMLElement;
 };
+
+export const getTextInputElement = (): HTMLInputElement => {
+    return document.getElementById('text-input') as HTMLInputElement
+};
