@@ -17,8 +17,8 @@ const update = (timeout: number = 0, isPageTransition: boolean = false) => {
     }, timeout);
 };
 const isScoreClicked = (e: MouseEvent): boolean => {
-    for(let el of e["path"]){
-        if(el.className === "scoreview"){
+    for (let el of e["path"]) {
+        if (el.className === "scoreview") {
             return true
         }
     }
@@ -32,16 +32,18 @@ const quitEditing = (): void => {
 };
 const handleClickEvent = (e: MouseEvent): void => {
     update();
-    if(isScoreClicked(e)) return;
+    if (isScoreClicked(e)) return;
     quitEditing();
 };
-const init = (): void => {
+const init = async (): Promise<void> => {
     console.log(MSG, "hello from hyperscorebox");
     window.addEventListener("click", handleClickEvent);
     registerTextInputMutationObserver(() => update());
     registerPageTransitionObserver(() => update(0, true));
-    initIME(tinySynth);
     update();
+    await initIME(tinySynth);
 };
 
-setTimeout(init, 2000);
+setTimeout(async () => {
+    await init();
+}, 2000);
