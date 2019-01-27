@@ -1,5 +1,10 @@
 import {ScoresInPage} from "./ScoresInPage";
-import {getABCBlocks, registerTextInputMutationObserver, registerPageTransitionObserver} from "./Scrapbox";
+import {
+    getABCBlocks,
+    registerTextInputMutationObserver,
+    registerPageTransitionObserver,
+    registerSharedCursorMutationObserver
+} from "./Scrapbox";
 import {ABCBlock} from "./Types";
 import {initIME} from "./IME";
 import * as WebAudioTinySynth from "webaudio-tinysynth";
@@ -39,6 +44,8 @@ const init = async (): Promise<void> => {
     console.log(MSG, "hello from hyperscorebox");
     window.addEventListener("click", handleClickEvent);
     registerTextInputMutationObserver(() => update());
+    registerSharedCursorMutationObserver(update);
+
     registerPageTransitionObserver(() => update(0, true));
     update();
     await initIME(tinySynth);

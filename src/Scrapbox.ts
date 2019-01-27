@@ -150,6 +150,20 @@ export const registerTextInputMutationObserver = (_function: (textInput?: HTMLIn
     textInputObserver.observe(textInput, {attributes: true});
 };
 
+export const registerSharedCursorMutationObserver = (_function: () => void) => {
+    const sharedCursors = document.querySelector(".shared-cursors") as HTMLElement;
+    const cursorObserver = new MutationObserver(() => {
+        console.log("cursor appeared");
+        //TODO 1つのカーソルに複数のobserverが登録されないようにする
+        const sharedCursor = sharedCursors.querySelector(".cursor") as HTMLElement;
+        const observer = new MutationObserver(() => {
+            _function();
+        });
+        observer.observe(sharedCursor, {attributes: true});
+    });
+    cursorObserver.observe(sharedCursors, {childList: true});
+};
+
 export const registerPageTransitionObserver = (_function: () => void) => {
     const pageWrapper = document.querySelector(".page-wrapper");
     const transitionObserver = new MutationObserver(_function);
