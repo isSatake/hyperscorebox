@@ -29,7 +29,7 @@
 .midi-pause-button::before,
 .midi-rewind-button::before,
 .midi-download-button::before{
-    font-family: "FontAwesome";
+    font-family: "Font Awesome 5 Free";
     color: #fff;
 }
 

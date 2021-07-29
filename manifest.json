@@ -1,6 +1,6 @@
 {
   "name": "hyperscorebox",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "hyperscore Chrome Extension",
   "icons": {
     "16": "icon16.png",
@@ -9,7 +9,6 @@
   },
   "permissions": [
     "activeTab",
-    "tabs",
     "https://scrapbox.io/*"
   ],
   "content_scripts": [

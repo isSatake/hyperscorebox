@@ -105,7 +105,7 @@ export const getABCBlocks = async (): Promise<ABCBlock[]> => {
                 tempBlock.abc += abc;
                 tempBlock.blockHeight += blockHeight;
             } else { //なければすべてのプロパティを一度に追加する
-                if (/(code:|)(.*\.|)abc/.test(abc)) {
+                if (!hasCodeBlock && /\n(.*\.|)abc$/.test(abc)) {
                     tempBlock = {
                         titleElement: line as HTMLElement,
                         titleElementID: line.id,
